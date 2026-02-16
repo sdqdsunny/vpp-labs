@@ -1,0 +1,4 @@
+# file: /Users/guoshuguang/my-project/kiro/power-emulator/vpp-master/utils/async_tasks.py
+# hypothesis_version: 6.151.6
+
+[0.1, 'TaskQueue stopped', 'active', 'args', 'cancelled', 'completed', 'completed_at', 'created_at', 'error', 'failed', 'func', 'interval_seconds', 'kwargs', 'last_execution', 'pending', 'result', 'running', 'scheduled_time', 'started_at', 'status', 'task_id']

@@ -1,0 +1,38 @@
+# VPP Master 依赖列表
+
+# Web框架
+bottle>=0.12.25
+
+# 数据处理
+pydantic>=2.0.0
+sqlalchemy>=2.0.0
+
+# 电力系统
+pandapower>=2.13.0
+scipy>=1.10.0
+numpy>=1.24.0
+
+# 协议处理
+requests>=2.31.0
+
+# 认证
+PyJWT>=2.8.0
+
+# 工具库
+python-dotenv>=1.0.0
+redis>=5.0.0
+prometheus-client>=0.17.0
+
+# 日志和监控
+python-json-logger>=2.0.0
+structlog>=23.1.0
+
+# 开发工具
+pytest>=7.0.0
+pytest-cov>=4.0.0
+hypothesis>=6.0.0
+black>=23.0.0
+flake8>=6.0.0
+
+# 生产服务器
+gunicorn>=21.0.0

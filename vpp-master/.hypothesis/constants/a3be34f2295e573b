@@ -1,0 +1,4 @@
+# file: /Users/guoshuguang/my-project/kiro/power-emulator/vpp-master/utils/logger.py
+# hypothesis_version: 6.151.6
+
+['exception', 'extra_fields', 'function', 'json', 'level', 'line', 'logger', 'message', 'module', 'request_id', 'stack_trace', 'timestamp']

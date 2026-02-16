@@ -1,0 +1,4 @@
+# file: /Users/guoshuguang/my-project/kiro/power-emulator/vpp-master/models/protocol_mapping.py
+# hypothesis_version: 6.151.6
+
+[255, 'created_at', 'id', 'idx_protocol_active', 'is_active', 'mapping_rules', 'protocol_mappings', 'source_protocol', 'target_protocol', 'updated_at']

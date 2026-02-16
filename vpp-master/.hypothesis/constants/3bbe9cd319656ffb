@@ -1,0 +1,4 @@
+# file: /Users/guoshuguang/my-project/kiro/power-emulator/vpp-master/utils/errors.py
+# hypothesis_version: 6.151.6
+
+[400, 401, 403, 404, 409, 422, 429, 500, 503, 'ANALYSIS_FAILED', 'CONFLICT', 'DATABASE_ERROR', 'DISPATCH_FAILED', 'FORBIDDEN', 'INTERNAL_ERROR', 'INVALID_REQUEST', 'NOT_FOUND', 'PROTOCOL_ERROR', 'RATE_LIMIT_EXCEEDED', 'SERVICE_UNAVAILABLE', 'UNAUTHORIZED']

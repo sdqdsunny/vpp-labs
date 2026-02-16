@@ -1,0 +1,4 @@
+# file: /Users/guoshuguang/my-project/kiro/power-emulator/vpp-master/utils/query_cache.py
+# hypothesis_version: 6.151.6
+
+[100, 300, 'Session', '__class__', 'args', 'cached_entries', 'created_at', 'expires_at', 'func', 'hit_rate', 'hits', 'kwargs', 'misses', 'total_requests', 'value']

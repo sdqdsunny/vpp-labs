@@ -1,0 +1,4 @@
+# file: /Users/guoshuguang/my-project/kiro/power-emulator/vpp-master/models/device.py
+# hypothesis_version: 6.151.6
+
+[255, 'Dispatch', 'all, delete-orphan', 'capabilities', 'configuration', 'created_at', 'device', 'device_type', 'devices', 'error', 'id', 'idx_device_location', 'idx_device_status', 'idx_device_type', 'last_heartbeat', 'location', 'offline', 'online', 'status', 'updated_at']

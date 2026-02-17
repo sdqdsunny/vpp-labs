@@ -1,0 +1,4 @@
+# file: /Users/guoshuguang/my-project/kiro/power-emulator/vpp-master/middleware/request_logger.py
+# hypothesis_version: 6.151.6
+
+[1000, 'after_request', 'before_request', 'content_length', 'duration_ms', 'method', 'path', 'query_string', 'remote_addr', 'request_id', 'start_time', 'status_code', 'unknown', 'user_agent']

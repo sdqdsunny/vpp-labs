@@ -1,0 +1,4 @@
+# file: /Users/guoshuguang/my-project/kiro/power-emulator/vpp-master/middleware/authorization.py
+# hypothesis_version: 6.151.6
+
+[403, '/api/', '/docs', '/health', '/metrics', '/swagger', 'Forbidden', 'action', 'admin', 'analysis:create', 'analysis:delete', 'analysis:read', 'analysis:update', 'audit:read', 'audit_id', 'before_request', 'device:create', 'device:delete', 'device:read', 'device:update', 'dispatch:create', 'dispatch:delete', 'dispatch:read', 'dispatch:update', 'operator', 'path', 'protocol:create', 'protocol:delete', 'protocol:read', 'protocol:update', 'request_id', 'required_permission', 'resource_id', 'resource_type', 'roles', 'status', 'unknown', 'user:create', 'user:delete', 'user:read', 'user:update', 'user_context', 'user_id', 'user_roles', 'viewer']

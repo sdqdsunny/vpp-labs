@@ -1,0 +1,4 @@
+# file: /Users/guoshuguang/my-project/kiro/power-emulator/vpp-phase2-simulation/utils/errors.py
+# hypothesis_version: 6.151.6
+
+['COMMUNICATION_ERROR', 'CONFIGURATION_ERROR', 'DATABASE_ERROR', 'POWER_FLOW_ERROR', 'SIMULATION_ERROR', 'SIMULATOR_ERROR', 'TIMEOUT_ERROR', 'VALIDATION_ERROR']

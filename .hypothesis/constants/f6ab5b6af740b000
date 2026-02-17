@@ -1,0 +1,4 @@
+# file: /Users/guoshuguang/my-project/kiro/power-emulator/vpp-phase2-simulation/config.py
+# hypothesis_version: 6.151.6
+
+['0.0.0.0', '0.01', '1.0', '100', '10000', '20', '30', '3600', '4', '40', '500', '60', '8001', '8002', 'API_HOST', 'API_PORT', 'API_WORKERS', 'DATABASE_POOL_SIZE', 'DATABASE_URL', 'DEBUG', 'DEFAULT_LATENCY_MS', 'ENV', 'False', 'INFO', 'LOG_FILE', 'LOG_LEVEL', 'MAX_DEVICES', 'MAX_SCENARIOS', 'PROMETHEUS_ENABLED', 'PROMETHEUS_PORT', 'REDIS_CACHE_TTL', 'REDIS_URL', 'SIMULATION_TIME_STEP', 'TESTING', 'True', 'VPP_MASTER_API_KEY', 'VPP_MASTER_URL', 'development', 'json', 'production', 'sqlite:///:memory:', 'testing', 'true']

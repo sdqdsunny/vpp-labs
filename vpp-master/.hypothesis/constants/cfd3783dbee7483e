@@ -1,0 +1,4 @@
+# file: /Users/guoshuguang/my-project/kiro/power-emulator/vpp-master/config.py
+# hypothesis_version: 6.151.6
+
+[3000, 8080, 9090, '0.0.0.0', '0.1.0', 'DATABASE_URL', 'DEBUG', 'ENVIRONMENT', 'HOST', 'INFO', 'LOG_FORMAT', 'LOG_LEVEL', 'OPEN5GS_HOST', 'OPEN5GS_PORT', 'PORT', 'PROMETHEUS_PORT', 'PTP_ENABLED', 'PTP_INTERFACE', 'REDIS_URL', 'SECRET_KEY', 'development', 'eth0', 'json', 'localhost', 'production', 'sqlite:///:memory:', 'testing', 'true']

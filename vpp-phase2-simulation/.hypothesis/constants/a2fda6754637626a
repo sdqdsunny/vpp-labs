@@ -1,0 +1,4 @@
+# file: /Users/guoshuguang/my-project/kiro/power-emulator/vpp-phase2-simulation/services/scenario_engine.py
+# hypothesis_version: 6.151.6
+
+[0.0, 3600.0, 'EventScheduler reset', 'aggregated_metrics', 'avg', 'cancelled', 'checkpoint', 'completed', 'count', 'created', 'created_at', 'csv', 'custom', 'description', 'device_command', 'device_update', 'devices', 'duration', 'end_time', 'engine_id', 'errors', 'events', 'events_executed', 'executed_scenarios', 'execution_result', 'failed', 'generated_at', 'id', 'json', 'max', 'metrics', 'metrics_collected', 'metrics_count', 'min', 'name', 'paused', 'pending_events', 'queued', 'registered_devices', 'result', 'running', 'running_scenarios', 'scenario_description', 'scenario_end', 'scenario_id', 'scenario_name', 'scenario_start', 'start_time', 'status', 'total_scenarios']

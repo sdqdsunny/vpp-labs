@@ -1,0 +1,4 @@
+# file: /Users/guoshuguang/my-project/kiro/power-emulator/vpp-phase2-simulation/services/metrics_collector.py
+# hypothesis_version: 6.151.6
+
+[3600, '1h', '1m', '1s', 'avg', 'count', 'error', 'max', 'min', 'sum', 'warning']

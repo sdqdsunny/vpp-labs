@@ -1,0 +1,4 @@
+# file: /Users/guoshuguang/my-project/kiro/power-emulator/vpp-master/routes/protocol.py
+# hypothesis_version: 6.151.6
+
+[200, 201, 400, 404, 500, 'INTERNAL_ERROR', 'NOT_FOUND', 'PROTOCOL_ERROR', 'VALIDATION_ERROR', 'code', 'converted_data', 'data', 'deleted', 'details', 'encoded_data', 'error', 'id', 'mapping_id', 'mapping_rules', 'message', 'parsed_data', 'protocol', 'source_protocol', 'status', 'success', 'target_protocol']

@@ -1,0 +1,4 @@
+# file: /Users/guoshuguang/my-project/kiro/power-emulator/vpp-phase2-simulation/utils/logger.py
+# hypothesis_version: 6.151.6
+
+[1024, '(unknown file)', 'INFO', 'RequestLogger', 'Z', 'device_id', 'duration_ms', 'exception', 'function', 'json', 'level', 'line', 'logger', 'message', 'module', 'request_id', 'scenario_id', 'timestamp', 'vpp_phase2_sim']

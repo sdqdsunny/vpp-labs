@@ -1,0 +1,4 @@
+# file: /Users/guoshuguang/my-project/kiro/power-emulator/vpp-master/services/dispatch_engine.py
+# hypothesis_version: 6.151.6
+
+[0.1, 'cancelled', 'command_type', 'completed', 'device_id', 'dispatch_creation', 'dispatch_execution', 'dispatch_id', 'dispatch_retry', 'dispatch_scheduling', 'dispatches', 'error_message', 'executed_at', 'execution_time', 'failed', 'online', 'page', 'page_size', 'pagination', 'pending', 'results', 'retry_count', 'scheduled_time', 'status', 'success', 'target_value', 'total_count', 'total_pages', 'updated_at']

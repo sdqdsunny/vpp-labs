@@ -1,0 +1,4 @@
+# file: /Users/guoshuguang/my-project/kiro/power-emulator/vpp-phase2-simulation/routes/devices.py
+# hypothesis_version: 6.151.6
+
+[1.0, 200, 201, 400, 404, 500, '/api/v1/devices', 'Failed to get device', 'battery', 'capabilities', 'command_type', 'count', 'created', 'data', 'deleted', 'device_id', 'device_type', 'devices', 'error', 'load', 'message', 'not found', 'parameters', 'reset', 'solar', 'state', 'status', 'success', 'time_delta', 'timestamp', 'wind']

@@ -1,0 +1,4 @@
+# file: /Users/guoshuguang/my-project/kiro/power-emulator/vpp-phase2-simulation/services/storage_simulator.py
+# hypothesis_version: 6.151.6
+
+[0.0, 0.5, 0.95, 1.0, 20.0, 25.0, 40.0, 50.0, 67.2, 80.0, 100.0, 5000.0, 100, 'Battery idle', 'battery', 'capacity_kwh', 'charge', 'charge_cycles', 'charge_power_kw', 'charging', 'device_id', 'device_type', 'discharge', 'discharge_power_kw', 'discharging', 'duration_hours', 'efficiency', 'energy_charged_kwh', 'energy_loss_kwh', 'get_available_power', 'idle', 'initial_soc', 'max_soc', 'min_soc', 'power_kw', 'power_rating_kw', 'set_power', 'soc', 'soh', 'status', 'supported_commands', 'temperature', 'voltage']

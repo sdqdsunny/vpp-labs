@@ -1,0 +1,4 @@
+# file: /Users/guoshuguang/my-project/kiro/power-emulator/vpp-phase2-simulation/utils/structured_logger.py
+# hypothesis_version: 6.151.6
+
+[100, 1000, 'CRITICAL', 'DEBUG', 'ERROR', 'INFO', 'WARNING', 'Z', 'exception', 'level', 'logger', 'message', 'request_id', 'tags', 'timestamp', 'traceback', 'type']

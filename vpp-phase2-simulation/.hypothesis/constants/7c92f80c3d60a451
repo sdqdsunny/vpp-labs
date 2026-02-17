@@ -1,0 +1,4 @@
+# file: /Users/guoshuguang/my-project/kiro/power-emulator/vpp-phase2-simulation/models/power_flow_result.py
+# hypothesis_version: 6.151.6
+
+['Scenario', 'power_flow_results', 'scenarios.id']

@@ -1,0 +1,4 @@
+# file: /Users/guoshuguang/my-project/kiro/power-emulator/vpp-master/middleware/error_handler.py
+# hypothesis_version: 6.151.6
+
+[400, 401, 403, 404, 429, 500, 503, '.', 'Bad request', 'FORBIDDEN', 'Forbidden', 'INTERNAL_ERROR', 'INVALID_REQUEST', 'NOT_FOUND', 'RATE_LIMIT_EXCEEDED', 'Rate limit exceeded', 'Resource not found', 'SERVICE_UNAVAILABLE', 'UNAUTHORIZED', 'Unauthorized', 'application/json', 'before_request', 'code', 'details', 'error', 'error_code', 'error_id', 'error_message', 'errors', 'exception', 'loc', 'message', 'msg', 'path', 'request_id', 'timestamp']

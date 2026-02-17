@@ -1,0 +1,4 @@
+# file: /Users/guoshuguang/my-project/kiro/power-emulator/vpp-phase2-simulation/services/demand_simulator.py
+# hypothesis_version: 6.151.6
+
+[0.1, 0.2, 0.5, 0.6, 0.8, 0.9, 1.0, 1.1, 1.2, 1.5, 3.0, 4.0, 6.0, 8.0, 24.0, 3600.0, 'base_load_kw', 'current_load_kw', 'daily_pattern', 'device_id', 'device_type', 'flexibility_range', 'forecast_kw', 'get_current_load', 'get_load_forecast', 'hour_of_day', 'hours', 'increased', 'load', 'max_load_kw', 'min_load_kw', 'normal', 'reduced', 'seasonal_factor', 'set_demand_response', 'signal', 'status', 'supported_commands']

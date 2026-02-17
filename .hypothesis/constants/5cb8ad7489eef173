@@ -1,0 +1,4 @@
+# file: /Users/guoshuguang/my-project/kiro/power-emulator/vpp-phase2-simulation/middleware/request_logger.py
+# hypothesis_version: 6.151.6
+
+[1000, 'X-Request-ID', 'after_request', 'before_request', 'duration_ms', 'method', 'path', 'request_id', 'status']

@@ -1,0 +1,4 @@
+# file: /Users/guoshuguang/my-project/kiro/power-emulator/vpp-phase2-simulation/routes/visualization.py
+# hypothesis_version: 6.151.6
+
+[400, 404, 500, ',', 'Failed to get alerts', 'GET', 'Scenario not found', 'Violation detected', 'alerts', 'application/json', 'avg', 'count', 'critical', 'details', 'device_count', 'device_id', 'device_type', 'devices', 'end_time', 'error', 'idle', 'is_stable', 'latest', 'max', 'message', 'metric_names', 'metrics', 'metrics_summary', 'min', 'pending', 'power_flow_analysis', 'power_flows', 'running', 'scenario_id', 'severity', 'stability', 'start_time', 'state', 'status', 'tags', 'timestamp', 'type', 'values', 'violation', 'violations', 'warning']

@@ -1,0 +1,4 @@
+# file: /Users/guoshuguang/my-project/kiro/power-emulator/vpp-phase2-simulation/services/network_simulator.py
+# hypothesis_version: 6.151.6
+
+[0.0, 0.02, 0.05, 0.1, 0.5, 0.8, 1.0, 5.0, 20.0, 100, 500, 1000, 'average_latency_ms', 'bandwidth_mbps', 'condition', 'congested', 'degraded', 'handover', 'jitter_ms', 'latency_ms', 'load_factor', 'messages_dropped', 'messages_processed', 'network_id', 'normal', 'packet_loss_rate', 'timestamp', 'total_latency_ms']

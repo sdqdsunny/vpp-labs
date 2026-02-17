@@ -1,0 +1,4 @@
+# file: /Users/guoshuguang/my-project/kiro/power-emulator/vpp-phase2-simulation/services/protocol_simulator.py
+# hypothesis_version: 6.151.6
+
+[0.0, 1.0, 104, 127, 128, 252, 254, 255, 65536, 'CONNACK', 'CONNECT', 'DISCONNECT', 'Data cannot be empty', 'I', 'Message too short', 'PINGREQ', 'PINGRESP', 'PUBACK', 'PUBCOMP', 'PUBLISH', 'PUBREC', 'PUBREL', 'S', 'SUBACK', 'SUBSCRIBE', 'U', 'UNSUBACK', 'UNSUBSCRIBE', 'asdu_data', 'destination', 'error', 'errors_logged', 'event_id', 'flags', 'function_code', 'iec104', 'iec104_messages_sent', 'latency_ms', 'length', 'message_id', 'message_type', 'messages_dropped', 'messages_processed', 'mqtt', 'mqtt_messages_sent', 'packet_loss', 'packet_type', 'packet_type_name', 'payload', 'payload_size', 'protocol', 'receive_sequence', 'remaining_length', 'send_sequence', 'simulator_id', 'source', 'timestamp', 'total_events', 'type', 'unknown']

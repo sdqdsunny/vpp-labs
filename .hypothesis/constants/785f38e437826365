@@ -1,0 +1,4 @@
+# file: /Users/guoshuguang/my-project/kiro/power-emulator/vpp-master/routes/analysis.py
+# hypothesis_version: 6.151.6
+
+[200, '0x0', 'GET', 'POST', 'aggregation', 'application/json', 'call_stack', 'core_dump', 'crash_address', 'created_at', 'dump_id', 'end_time', 'filters', 'hourly', 'protocol', 'register_state', 'report_type', 'request_id', 'severity', 'start_time', 'status', 'unknown']

@@ -1,0 +1,4 @@
+# file: /Users/guoshuguang/my-project/kiro/power-emulator/vpp-master/middleware/auth.py
+# hypothesis_version: 6.151.6
+
+[401, '/api/', '/docs', '/health', '/metrics', '/swagger', '24', 'API_KEY_MASTER', 'API_KEY_MONITOR', 'API_KEY_VCC', 'Authorization', 'Bearer ', 'HS256', 'Invalid API key', 'JWT_EXPIRATION_HOURS', 'JWT_SECRET', 'Missing API key', 'Token has expired', 'Unauthorized', 'X-API-Key', 'admin', 'api_key', 'auth_type', 'before_request', 'exp', 'iat', 'jti', 'master-service', 'monitor-service', 'operator', 'remote_addr', 'request_id', 'roles', 'token', 'unknown', 'user_id', 'username', 'vcc-service', 'viewer', 'vpp-jwt-secret-dev', 'vpp-master-key-dev', 'vpp-monitor-key-dev', 'vpp-vcc-key-dev']

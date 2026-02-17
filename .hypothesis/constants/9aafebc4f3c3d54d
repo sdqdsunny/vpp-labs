@@ -1,0 +1,4 @@
+# file: /Users/guoshuguang/my-project/kiro/power-emulator/vpp-phase2-simulation/services/power_flow_engine.py
+# hypothesis_version: 6.151.6
+
+[0.0, 0.01, 0.05, 0.5, 0.7, 0.9, 1.0, 1.1, 20.0, 40.0, 50.0, 100.0, 100, 1000, 'assessment_time', 'bus_id', 'buses', 'calculation_count', 'calculation_time', 'congestion', 'converged', 'critical', 'damping_ratio', 'engine_id', 'frequency_deviation', 'limit', 'line_id', 'lines', 'marginal', 'result_id', 'severity', 'stability', 'stable', 'status', 'timestamp', 'total_loss', 'unstable', 'value', 'violation_id', 'violation_type', 'violations', 'voltage_high', 'voltage_low', 'warning']

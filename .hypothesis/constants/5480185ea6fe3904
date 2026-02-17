@@ -1,0 +1,4 @@
+# file: /Users/guoshuguang/my-project/kiro/power-emulator/vpp-phase2-simulation/middleware/error_handler.py
+# hypothesis_version: 6.151.6
+
+[400, 404, 422, 500, 504, 'COMMUNICATION_ERROR', 'CONFIGURATION_ERROR', 'DATABASE_ERROR', 'HTTP_ERROR', 'INTERNAL_ERROR', 'POWER_FLOW_ERROR', 'SIMULATOR_ERROR', 'TIMEOUT_ERROR', 'VALIDATION_ERROR', 'application/json', 'code', 'details', 'error', 'error_message', 'error_type', 'message', 'request_id', 'status']

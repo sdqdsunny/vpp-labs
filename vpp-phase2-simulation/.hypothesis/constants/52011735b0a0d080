@@ -1,0 +1,4 @@
+# file: /Users/guoshuguang/my-project/kiro/power-emulator/vpp-phase2-simulation/models/scenario.py
+# hypothesis_version: 6.151.6
+
+['CommunicationEvent', 'DeviceState', 'Metric', 'PowerFlowResult', 'all, delete-orphan', 'cancelled', 'completed', 'failed', 'pending', 'running', 'scenario', 'scenarios']

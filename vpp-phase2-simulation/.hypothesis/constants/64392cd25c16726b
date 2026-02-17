@@ -1,0 +1,4 @@
+# file: /Users/guoshuguang/my-project/kiro/power-emulator/vpp-phase2-simulation/services/vcc_coordinator.py
+# hypothesis_version: 6.151.6
+
+[0.0, 1.0, '-', '/', 'C_SC_NA_1', '_', 'active_messages', 'asdu_type', 'command_id', 'command_type', 'command_value', 'common_address', 'data', 'degraded', 'destination', 'device_id', 'get_available_power', 'get_state', 'iec104', 'initialized', 'latency_ms', 'measured_value', 'message_id', 'mqtt', 'originator_address', 'packet_loss', 'packet_loss_count', 'parameters', 'payload', 'protocol', 'qos', 'qualifier', 'reset', 'response_id', 'retain', 'set_demand_response', 'set_power', 'source', 'status', 'success', 'timestamp', 'topic', 'total_latency_ms', 'unknown', 'value', 'vcc', 'vcc_id']

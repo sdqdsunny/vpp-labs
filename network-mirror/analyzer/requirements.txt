@@ -1,0 +1,11 @@
+# VPP Protocol Analyzer Requirements
+# Python 3.8+
+
+# Packet processing and network analysis
+scapy>=2.4.5
+
+# MQTT publishing
+paho-mqtt>=1.6.1
+
+# Optional: For enhanced performance
+# dpkt>=1.9.7  # Alternative packet parsing library

@@ -6,6 +6,7 @@ bottle>=0.12.25
 # 数据处理
 pydantic>=2.0.0
 sqlalchemy>=2.0.0
+psycopg2-binary>=2.9.0
 
 # 电力系统
 pandapower>=2.13.0

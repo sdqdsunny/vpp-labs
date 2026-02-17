@@ -57,6 +57,11 @@ services:
       LOG_FORMAT: json
       PROMETHEUS_ENABLED: "true"
       PROMETHEUS_PORT: 8081
+      VPP_MASTER_URL: http://vpp-master:8080
+      VPP_MASTER_TIMEOUT: "30"
+      VPP_MASTER_MAX_RETRIES: "3"
+      VPP_MASTER_RETRY_DELAY: "5"
+      VPP_SYNC_INTERVAL: "5"
     ports:
       - "8080:8080"
       - "8081:8081"
@@ -67,7 +72,6 @@ services:
         condition: service_healthy
     volumes:
       - ./logs:/app/logs
-      - ./:/app
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
       interval: 30s
@@ -75,48 +79,15 @@ services:
       retries: 3
     networks:
       - vpp-network
-
-  # Prometheus Metrics
-  prometheus:
-    image: prom/prometheus:latest
-    container_name: vpp-prometheus
-    ports:
-      - "9090:9090"
-    volumes:
-      - ./k8s/prometheus-config.yaml:/etc/prometheus/prometheus.yml
-      - prometheus_data:/prometheus
-    command:
-      - '--config.file=/etc/prometheus/prometheus.yml'
-      - '--storage.tsdb.path=/prometheus'
-    depends_on:
-      - vpp-api
-    networks:
-      - vpp-network
-
-  # Grafana Dashboard
-  grafana:
-    image: grafana/grafana:latest
-    container_name: vpp-grafana
-    ports:
-      - "3000:3000"
-    environment:
-      GF_SECURITY_ADMIN_PASSWORD: admin
-      GF_SECURITY_ADMIN_USER: admin
-    volumes:
-      - grafana_data:/var/lib/grafana
-      - ./k8s/grafana-dashboards:/etc/grafana/provisioning/dashboards
-      - ./k8s/grafana-datasources.yaml:/etc/grafana/provisioning/datasources/datasources.yaml
-    depends_on:
-      - prometheus
-    networks:
-      - vpp-network
+      - vpp-master-network
 
 volumes:
   postgres_data:
   redis_data:
-  prometheus_data:
-  grafana_data:
 
 networks:
   vpp-network:
     driver: bridge
+  vpp-master-network:
+    external: true
+    name: vpp-master_vpp-master-network

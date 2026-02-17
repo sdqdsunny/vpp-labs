@@ -6,26 +6,26 @@ services:
     build: .
     container_name: vpp-master
     ports:
-      - "8080:8080"
+      - "8090:8080"
     environment:
       - ENVIRONMENT=development
       - DEBUG=true
-      - DATABASE_URL=postgresql://vpp:vpp@postgres:5432/vpp_master
-      - REDIS_URL=redis://redis:6379/0
+      - DATABASE_URL=postgresql://vpp:vpp@vpp-master-postgres:5432/vpp_master
+      - REDIS_URL=redis://vpp-master-redis:6379/0
     depends_on:
-      - postgres
-      - redis
+      - vpp-master-postgres
+      - vpp-master-redis
     volumes:
       - ./data:/app/data
       - ./logs:/app/logs
     networks:
-      - vpp-network
+      - vpp-master-network
     restart: unless-stopped
 
   # PostgreSQL数据库
-  postgres:
+  vpp-master-postgres:
     image: postgres:15-alpine
-    container_name: vpp-postgres
+    container_name: vpp-master-postgres
     environment:
       - POSTGRES_USER=vpp
       - POSTGRES_PASSWORD=vpp
@@ -33,57 +33,25 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data
     networks:
-      - vpp-network
+      - vpp-master-network
     restart: unless-stopped
 
   # Redis缓存
-  redis:
+  vpp-master-redis:
     image: redis:7-alpine
-    container_name: vpp-redis
+    container_name: vpp-master-redis
     ports:
-      - "6379:6379"
+      - "6380:6379"
     volumes:
       - redis_data:/data
     networks:
-      - vpp-network
-    restart: unless-stopped
-
-  # Prometheus监控
-  prometheus:
-    image: prom/prometheus:latest
-    container_name: vpp-prometheus
-    ports:
-      - "9090:9090"
-    volumes:
-      - ./prometheus.yml:/etc/prometheus/prometheus.yml
-      - prometheus_data:/prometheus
-    command:
-      - '--config.file=/etc/prometheus/prometheus.yml'
-      - '--storage.tsdb.path=/prometheus'
-    networks:
-      - vpp-network
-    restart: unless-stopped
-
-  # Grafana可视化
-  grafana:
-    image: grafana/grafana:latest
-    container_name: vpp-grafana
-    ports:
-      - "3000:3000"
-    environment:
-      - GF_SECURITY_ADMIN_PASSWORD=admin
-    volumes:
-      - grafana_data:/var/lib/grafana
-    networks:
-      - vpp-network
+      - vpp-master-network
     restart: unless-stopped
 
 volumes:
   postgres_data:
   redis_data:
-  prometheus_data:
-  grafana_data:
 
 networks:
-  vpp-network:
+  vpp-master-network:
     driver: bridge

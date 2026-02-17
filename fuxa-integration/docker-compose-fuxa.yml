@@ -1,0 +1,131 @@
+version: '3.8'
+
+services:
+  # Mosquitto MQTT Broker
+  mosquitto:
+    image: eclipse-mosquitto:latest
+    container_name: vpp-mosquitto
+    ports:
+      - "1883:1883"
+      - "9001:9001"
+    volumes:
+      - ./mosquitto.conf:/mosquitto/config/mosquitto.conf
+      - mosquitto_data:/mosquitto/data
+      - mosquitto_logs:/mosquitto/log
+    networks:
+      - fuxa_network
+    healthcheck:
+      test: ["CMD", "mosquitto_pub", "-h", "localhost", "-t", "health", "-m", "ok"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  # FUXA Platform
+  fuxa:
+    image: frangoteam/fuxa:latest
+    container_name: vpp-fuxa
+    ports:
+      - "1881:1881"
+    volumes:
+      - fuxa_appdata:/app/appdata
+      - fuxa_database:/app/database
+    networks:
+      - fuxa_network
+    depends_on:
+      mosquitto:
+        condition: service_healthy
+    environment:
+      - NODE_ENV=production
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:1881/"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    restart: unless-stopped
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  # VPP Analyzer with MQTT Publishing
+  analyzer:
+    build:
+      context: ../network-mirror/analyzer
+      dockerfile: Dockerfile
+    container_name: vpp-analyzer-mqtt
+    environment:
+      - CAPTURE_INTERFACE=eth0
+      - OUTPUT_DIR=/pcap
+      - MQTT_BROKER=mosquitto
+      - MQTT_PORT=1883
+      - MQTT_TOPIC_PREFIX=vpp/traffic
+      - MQTT_PUBLISH_INTERVAL=1.0
+    volumes:
+      - analyzer_pcap:/pcap
+      - analyzer_logs:/var/log/vpp
+    networks:
+      - fuxa_network
+    depends_on:
+      mosquitto:
+        condition: service_healthy
+    cap_add:
+      - NET_ADMIN
+      - NET_RAW
+    restart: unless-stopped
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  # Redis Cache (Optional)
+  redis:
+    image: redis:7-alpine
+    container_name: vpp-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - fuxa_network
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+networks:
+  fuxa_network:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 10.0.9.0/24
+
+volumes:
+  mosquitto_data:
+    driver: local
+  mosquitto_logs:
+    driver: local
+  fuxa_appdata:
+    driver: local
+  fuxa_database:
+    driver: local
+  analyzer_pcap:
+    driver: local
+  analyzer_logs:
+    driver: local
+  redis_data:
+    driver: local

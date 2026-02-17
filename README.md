@@ -417,6 +417,56 @@ All 25 requirements fully implemented ✅
 - Connection pooling for database efficiency
 - Asynchronous task processing for long-running operations
 
+## 🐳 Docker Containers
+
+### Running Containers
+
+The project uses the following Docker containers:
+
+| Container Name | Image | Port | Purpose | Project |
+|---|---|---|---|---|
+| **vpp-master** | vpp-master-vpp-master | 8090:8080 | VPP Master API application | VPP Master |
+| **vpp-master-postgres** | postgres:15-alpine | 5432 | PostgreSQL database for VPP Master | VPP Master |
+| **vpp-master-redis** | redis:7-alpine | 6380:6379 | Redis cache for VPP Master | VPP Master |
+| **vpp-redis** | redis:7-alpine | 6379:6379 | Redis cache for Phase 2 Simulation | Phase 2 Simulation |
+| **vpp-mosquitto** | eclipse-mosquitto:latest | 1883:1883, 9001:9001 | MQTT message broker | Phase 2 Simulation |
+| **vpp-fuxa** | frangoteam/fuxa:latest | 1881:1881 | FUXA visualization dashboard | Phase 2 Simulation |
+| **vpp-analyzer-mqtt** | fuxa-integration-analyzer | - | MQTT analyzer for integration | Phase 2 Simulation |
+
+### Container Management
+
+**Start all containers:**
+```bash
+docker-compose up
+cd vpp-master && docker-compose up
+```
+
+**Stop all containers:**
+```bash
+docker stop vpp-master vpp-fuxa vpp-analyzer-mqtt vpp-redis vpp-mosquitto vpp-master-postgres vpp-master-redis
+```
+
+**View running containers:**
+```bash
+docker ps
+```
+
+**View container logs:**
+```bash
+docker logs <container_name>
+```
+
+### Container Architecture
+
+**VPP Master Stack:**
+- vpp-master (API) → vpp-master-postgres (Database) + vpp-master-redis (Cache)
+
+**Phase 2 Simulation Stack:**
+- vpp-redis (Cache)
+- vpp-mosquitto (MQTT Broker)
+- vpp-fuxa (Visualization)
+- vpp-analyzer-mqtt (MQTT Analysis)
+
 ## 🚢 Deployment
 
 ### Docker Compose (Development)

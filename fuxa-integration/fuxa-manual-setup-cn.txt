@@ -1,0 +1,253 @@
+===============================================
+FUXA 手动配置指南（中文版）
+===============================================
+
+当前状态：
+✅ FUXA运行在: http://localhost:1881
+✅ MQTT Broker运行在: localhost:1883
+✅ 测试数据正在发布（8个MQTT主题，每秒更新）
+
+你看到的界面：
+- Home（主页）
+- Lab（实验室）
+- Editor（编辑器）← 点击这个！
+
+===============================================
+第一步：进入编辑器模式
+===============================================
+
+1. 在FUXA界面点击 "Editor" 按钮
+2. 你会进入编辑器界面，左侧会有菜单
+
+===============================================
+第二步：添加MQTT设备
+===============================================
+
+在编辑器左侧菜单中：
+
+1. 找到 "Devices"（设备）或类似的选项
+2. 点击 "Add Device"（添加设备）或 "+" 按钮
+3. 填写以下信息：
+
+   设备名称: VPP Traffic Analyzer
+   设备类型: MQTT Client
+   
+   连接配置：
+   - Broker地址: mqtt://mosquitto:1883
+     （如果不行，试试: mqtt://localhost:1883）
+   - Client ID: fuxa-vpp-analyzer
+   - QoS: 1
+   - Keep Alive: 60
+   - Clean Session: 是/True
+
+4. 保存设备配置
+
+===============================================
+第三步：添加MQTT变量（15个）
+===============================================
+
+在刚创建的设备中，添加以下15个变量：
+
+【统计变量 - 2个】
+
+1. total_packets（总数据包）
+   - Topic: vpp/traffic/stats
+   - Path: total_packets
+   - Type: Number
+
+2. packet_rate（数据包速率）
+   - Topic: vpp/traffic/rate
+   - Path: rate
+   - Type: Number
+
+【协议变量 - 5个】
+
+3. iec61850_count
+   - Topic: vpp/traffic/protocols
+   - Path: protocols.IEC61850
+   - Type: Number
+
+4. modbus_count
+   - Topic: vpp/traffic/protocols
+   - Path: protocols.Modbus
+   - Type: Number
+
+5. mqtt_count
+   - Topic: vpp/traffic/protocols
+   - Path: protocols.MQTT
+   - Type: Number
+
+6. dnp3_count
+   - Topic: vpp/traffic/protocols
+   - Path: protocols.DNP3
+   - Type: Number
+
+7. unknown_count
+   - Topic: vpp/traffic/protocols
+   - Path: protocols.Unknown
+   - Type: Number
+
+【组件数据包变量 - 4个】
+
+8. master_packets
+   - Topic: vpp/traffic/components/master
+   - Path: packets
+   - Type: Number
+
+9. vcc_packets
+   - Topic: vpp/traffic/components/vcc
+   - Path: packets
+   - Type: Number
+
+10. upf_packets
+    - Topic: vpp/traffic/components/upf
+    - Path: packets
+    - Type: Number
+
+11. gen_packets
+    - Topic: vpp/traffic/components/gen
+    - Path: packets
+    - Type: Number
+
+【组件字节变量 - 4个】
+
+12. master_bytes
+    - Topic: vpp/traffic/components/master
+    - Path: bytes
+    - Type: Number
+
+13. vcc_bytes
+    - Topic: vpp/traffic/components/vcc
+    - Path: bytes
+    - Type: Number
+
+14. upf_bytes
+    - Topic: vpp/traffic/components/upf
+    - Path: bytes
+    - Type: Number
+
+15. gen_bytes
+    - Topic: vpp/traffic/components/gen
+    - Path: bytes
+    - Type: Number
+
+===============================================
+第四步：创建Dashboard
+===============================================
+
+1. 在编辑器左侧找到 "Views"（视图）或 "Dashboards"
+2. 点击 "Add View"（添加视图）或 "+" 按钮
+3. 填写：
+   - 名称: VPP Traffic Visualization
+   - 布局: Grid（网格）
+   - 刷新率: 1000ms（1秒）
+
+===============================================
+第五步：添加可视化组件（6个）
+===============================================
+
+在Dashboard中添加以下组件：
+
+【组件1：总数据包仪表盘】
+- 类型: Gauge（仪表盘）
+- 标题: Total Packets
+- 变量: total_packets
+- 最小值: 0
+- 最大值: 10000000
+
+【组件2：数据包速率仪表盘】
+- 类型: Gauge（仪表盘）
+- 标题: Packet Rate
+- 变量: packet_rate
+- 最小值: 0
+- 最大值: 100000
+- 单位: pps
+
+【组件3：协议分布饼图】
+- 类型: Chart - Pie（饼图）
+- 标题: Protocol Distribution
+- 变量: 
+  * iec61850_count
+  * modbus_count
+  * mqtt_count
+  * dnp3_count
+  * unknown_count
+
+【组件4：组件流量柱状图】
+- 类型: Chart - Bar（柱状图）
+- 标题: Traffic by Component
+- 变量:
+  * master_packets
+  * vcc_packets
+  * upf_packets
+  * gen_packets
+
+【组件5：数据表格】
+- 类型: Table（表格）
+- 标题: Component Details
+- 显示所有组件的packets和bytes
+
+【组件6：实时数值显示】
+- 类型: Value（数值）
+- 显示packet_rate的实时值
+
+===============================================
+第六步：测试Dashboard
+===============================================
+
+1. 保存Dashboard配置
+2. 点击 "Home" 按钮返回主页
+3. 你应该能看到Dashboard正在显示实时数据
+4. 数据每秒更新一次
+
+===============================================
+验证数据流
+===============================================
+
+如果看不到数据，检查：
+
+1. MQTT设备连接状态（应该显示"已连接"）
+2. 在终端运行以下命令查看MQTT数据：
+
+   mosquitto_sub -h localhost -p 1883 -t "vpp/traffic/#" -v
+
+3. 你应该能看到8个主题的数据在不断更新
+
+===============================================
+当前MQTT主题和数据
+===============================================
+
+正在发布的8个主题：
+1. vpp/traffic/stats - 总统计
+2. vpp/traffic/rate - 速率信息
+3. vpp/traffic/protocols - 协议分布
+4. vpp/traffic/flows - 流量信息
+5. vpp/traffic/components/master - Master组件
+6. vpp/traffic/components/vcc - VCC组件
+7. vpp/traffic/components/upf - UPF组件
+8. vpp/traffic/components/gen - Generator组件
+
+数据格式示例：
+{
+  "total_packets": 1234567,
+  "rate": 8500.5,
+  "protocols": {
+    "IEC61850": 300,
+    "Modbus": 250,
+    "MQTT": 200,
+    "DNP3": 150,
+    "Unknown": 100
+  }
+}
+
+===============================================
+需要帮助？
+===============================================
+
+如果遇到问题：
+1. 确保MQTT Broker地址正确（mosquitto:1883 或 localhost:1883）
+2. 检查FUXA日志：docker logs fuxa
+3. 检查Mosquitto日志：docker logs mosquitto
+4. 测试MQTT连接：mosquitto_sub -h localhost -p 1883 -t "#" -v
+
+===============================================

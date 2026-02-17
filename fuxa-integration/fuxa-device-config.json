@@ -1,0 +1,335 @@
+{
+  "devices": [
+    {
+      "id": "vpp-traffic-analyzer",
+      "name": "VPP Traffic Analyzer",
+      "type": "mqtt",
+      "enabled": true,
+      "config": {
+        "broker": "mosquitto:1883",
+        "clientId": "fuxa-vpp-analyzer",
+        "username": "",
+        "password": "",
+        "keepalive": 60,
+        "reconnectPeriod": 5000,
+        "qos": 1,
+        "clean": true
+      },
+      "variables": [
+        {
+          "id": "total_packets",
+          "name": "Total Packets",
+          "topic": "vpp/traffic/stats",
+          "path": "total_packets",
+          "type": "number",
+          "min": 0,
+          "max": 999999999,
+          "unit": "packets",
+          "description": "Total number of packets captured"
+        },
+        {
+          "id": "packet_rate",
+          "name": "Packet Rate",
+          "topic": "vpp/traffic/rate",
+          "path": "rate",
+          "type": "number",
+          "min": 0,
+          "max": 1000000,
+          "unit": "pps",
+          "description": "Current packet rate in packets per second"
+        },
+        {
+          "id": "iec61850_count",
+          "name": "IEC61850 Packets",
+          "topic": "vpp/traffic/protocols",
+          "path": "protocols.IEC61850",
+          "type": "number",
+          "min": 0,
+          "max": 999999999,
+          "unit": "packets",
+          "description": "Number of IEC61850 protocol packets"
+        },
+        {
+          "id": "modbus_count",
+          "name": "Modbus Packets",
+          "topic": "vpp/traffic/protocols",
+          "path": "protocols.Modbus",
+          "type": "number",
+          "min": 0,
+          "max": 999999999,
+          "unit": "packets",
+          "description": "Number of Modbus protocol packets"
+        },
+        {
+          "id": "mqtt_count",
+          "name": "MQTT Packets",
+          "topic": "vpp/traffic/protocols",
+          "path": "protocols.MQTT",
+          "type": "number",
+          "min": 0,
+          "max": 999999999,
+          "unit": "packets",
+          "description": "Number of MQTT protocol packets"
+        },
+        {
+          "id": "dnp3_count",
+          "name": "DNP3 Packets",
+          "topic": "vpp/traffic/protocols",
+          "path": "protocols.DNP3",
+          "type": "number",
+          "min": 0,
+          "max": 999999999,
+          "unit": "packets",
+          "description": "Number of DNP3 protocol packets"
+        },
+        {
+          "id": "unknown_count",
+          "name": "Unknown Packets",
+          "topic": "vpp/traffic/protocols",
+          "path": "protocols.Unknown",
+          "type": "number",
+          "min": 0,
+          "max": 999999999,
+          "unit": "packets",
+          "description": "Number of unknown protocol packets"
+        },
+        {
+          "id": "master_packets",
+          "name": "Master Packets",
+          "topic": "vpp/traffic/components/master",
+          "path": "packets",
+          "type": "number",
+          "min": 0,
+          "max": 999999999,
+          "unit": "packets",
+          "description": "Packets from/to master station"
+        },
+        {
+          "id": "vcc_packets",
+          "name": "VCC Packets",
+          "topic": "vpp/traffic/components/vcc",
+          "path": "packets",
+          "type": "number",
+          "min": 0,
+          "max": 999999999,
+          "unit": "packets",
+          "description": "Packets from/to VCC coordinator"
+        },
+        {
+          "id": "upf_packets",
+          "name": "UPF Packets",
+          "topic": "vpp/traffic/components/upf",
+          "path": "packets",
+          "type": "number",
+          "min": 0,
+          "max": 999999999,
+          "unit": "packets",
+          "description": "Packets from/to 5G UPF"
+        },
+        {
+          "id": "gen_packets",
+          "name": "Generator Packets",
+          "topic": "vpp/traffic/components/gen",
+          "path": "packets",
+          "type": "number",
+          "min": 0,
+          "max": 999999999,
+          "unit": "packets",
+          "description": "Packets from/to device simulator"
+        },
+        {
+          "id": "master_bytes",
+          "name": "Master Bytes",
+          "topic": "vpp/traffic/components/master",
+          "path": "bytes",
+          "type": "number",
+          "min": 0,
+          "max": 999999999999,
+          "unit": "bytes",
+          "description": "Bytes from/to master station"
+        },
+        {
+          "id": "vcc_bytes",
+          "name": "VCC Bytes",
+          "topic": "vpp/traffic/components/vcc",
+          "path": "bytes",
+          "type": "number",
+          "min": 0,
+          "max": 999999999999,
+          "unit": "bytes",
+          "description": "Bytes from/to VCC coordinator"
+        },
+        {
+          "id": "upf_bytes",
+          "name": "UPF Bytes",
+          "topic": "vpp/traffic/components/upf",
+          "path": "bytes",
+          "type": "number",
+          "min": 0,
+          "max": 999999999999,
+          "unit": "bytes",
+          "description": "Bytes from/to 5G UPF"
+        },
+        {
+          "id": "gen_bytes",
+          "name": "Generator Bytes",
+          "topic": "vpp/traffic/components/gen",
+          "path": "bytes",
+          "type": "number",
+          "min": 0,
+          "max": 999999999999,
+          "unit": "bytes",
+          "description": "Bytes from/to device simulator"
+        }
+      ]
+    }
+  ],
+  "dashboards": [
+    {
+      "id": "vpp-traffic-dashboard",
+      "name": "VPP Traffic Visualization",
+      "description": "Real-time visualization of VPP network traffic",
+      "layout": "grid",
+      "gridSize": 12,
+      "refreshRate": 1000,
+      "widgets": [
+        {
+          "id": "network-topology",
+          "type": "custom",
+          "name": "Network Topology",
+          "x": 0,
+          "y": 0,
+          "width": 6,
+          "height": 6,
+          "config": {
+            "title": "VPP Network Topology",
+            "showLabels": true,
+            "animateFlow": true,
+            "updateInterval": 1000
+          }
+        },
+        {
+          "id": "total-packets-gauge",
+          "type": "gauge",
+          "name": "Total Packets",
+          "x": 6,
+          "y": 0,
+          "width": 3,
+          "height": 3,
+          "config": {
+            "title": "Total Packets",
+            "min": 0,
+            "max": 10000000,
+            "unit": "packets",
+            "variable": "total_packets"
+          }
+        },
+        {
+          "id": "packet-rate-gauge",
+          "type": "gauge",
+          "name": "Packet Rate",
+          "x": 9,
+          "y": 0,
+          "width": 3,
+          "height": 3,
+          "config": {
+            "title": "Packet Rate",
+            "min": 0,
+            "max": 100000,
+            "unit": "pps",
+            "variable": "packet_rate"
+          }
+        },
+        {
+          "id": "protocol-distribution",
+          "type": "chart",
+          "name": "Protocol Distribution",
+          "x": 6,
+          "y": 3,
+          "width": 6,
+          "height": 3,
+          "config": {
+            "title": "Protocol Distribution",
+            "type": "pie",
+            "variables": [
+              "iec61850_count",
+              "modbus_count",
+              "mqtt_count",
+              "dnp3_count",
+              "unknown_count"
+            ],
+            "labels": [
+              "IEC61850",
+              "Modbus",
+              "MQTT",
+              "DNP3",
+              "Unknown"
+            ]
+          }
+        },
+        {
+          "id": "component-traffic",
+          "type": "chart",
+          "name": "Component Traffic",
+          "x": 0,
+          "y": 6,
+          "width": 6,
+          "height": 3,
+          "config": {
+            "title": "Traffic by Component",
+            "type": "bar",
+            "variables": [
+              "master_packets",
+              "vcc_packets",
+              "upf_packets",
+              "gen_packets"
+            ],
+            "labels": [
+              "Master",
+              "VCC",
+              "UPF",
+              "Generator"
+            ]
+          }
+        },
+        {
+          "id": "component-health",
+          "type": "custom",
+          "name": "Component Health",
+          "x": 6,
+          "y": 6,
+          "width": 6,
+          "height": 3,
+          "config": {
+            "title": "Component Health Status",
+            "components": [
+              "master",
+              "vcc",
+              "upf",
+              "gen"
+            ]
+          }
+        }
+      ]
+    }
+  ],
+  "mqtt_topics": {
+    "stats": "vpp/traffic/stats",
+    "rate": "vpp/traffic/rate",
+    "protocols": "vpp/traffic/protocols",
+    "flows": "vpp/traffic/flows",
+    "components": {
+      "master": "vpp/traffic/components/master",
+      "vcc": "vpp/traffic/components/vcc",
+      "upf": "vpp/traffic/components/upf",
+      "gen": "vpp/traffic/components/gen"
+    }
+  },
+  "update_intervals": {
+    "stats": 1000,
+    "rate": 1000,
+    "protocols": 5000,
+    "flows": 5000,
+    "components": 1000
+  }
+}

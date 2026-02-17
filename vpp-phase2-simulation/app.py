@@ -18,6 +18,8 @@ from utils.swagger_ui import setup_swagger_ui
 from middleware.error_handler import error_handler, format_error_response, log_error
 from middleware.request_logger import add_request_id
 from routes.visualization import create_visualization_routes
+from routes.test_dashboard import create_test_dashboard_routes
+from routes.phase1_integration import create_phase1_integration_routes
 
 # Setup logging
 logger = setup_logging(
@@ -85,8 +87,9 @@ def readiness_check():
     """Readiness check endpoint."""
     try:
         # Check database connection
+        from sqlalchemy import text
         session = get_session()
-        session.execute("SELECT 1")
+        session.execute(text("SELECT 1"))
         session.close()
         
         response.content_type = "application/json"
@@ -139,10 +142,18 @@ def create_app():
     # Setup Swagger UI
     setup_swagger_ui(app)
     
+    # Initialize and start Phase 1 Integration Service
+    from services.phase1_integration import Phase1IntegrationService
+    phase1_service = Phase1IntegrationService()
+    phase1_service.start()
+    
     # Register routes
     create_visualization_routes(app)
+    create_test_dashboard_routes(app)
+    create_phase1_integration_routes(app)
     
     logger.info("VPP Phase 2 Simulation Framework initialized")
+    logger.info("Phase 1 Integration Service started with automatic synchronization")
     
     return app
 

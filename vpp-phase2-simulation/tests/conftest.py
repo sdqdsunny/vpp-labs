@@ -39,10 +39,11 @@ def db_session():
 
 
 @pytest.fixture
-def test_scenario(db_session):
+def test_scenario(db_session, request):
     """Create a test scenario in the database."""
+    import uuid
     scenario = Scenario(
-        id="test-scenario-1",
+        id=f"test-scenario-{uuid.uuid4().hex[:8]}",
         name="Test Scenario",
         description="Test scenario for metrics",
         definition={},
@@ -51,16 +52,31 @@ def test_scenario(db_session):
     )
     db_session.add(scenario)
     db_session.commit()
-    return scenario
+    
+    yield scenario
+    
+    # Clean up after test
+    try:
+        db_session.delete(scenario)
+        db_session.commit()
+    except:
+        pass
 
 
 @pytest.fixture
 def app():
     """Create test app."""
-    from app import create_app
-    app = create_app()
-    app.catchall = False
-    return app
+    import sys
+    import importlib.util
+    
+    # Load app.py directly
+    spec = importlib.util.spec_from_file_location("app_module", os.path.join(os.path.dirname(os.path.dirname(__file__)), "app.py"))
+    app_module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(app_module)
+    
+    test_app = app_module.create_app()
+    test_app.catchall = False
+    return test_app
 
 
 @pytest.fixture

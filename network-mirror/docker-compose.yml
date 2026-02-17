@@ -1,0 +1,157 @@
+version: '3.8'
+
+# VPP Network Traffic Mirroring System
+# Docker Compose Configuration with Docker Native Networking
+# 
+# This configuration orchestrates the complete network traffic
+# mirroring system for industrial control protocol analysis.
+# Uses Docker's bridge networking for macOS compatibility.
+#
+# Services:
+# - vpp-master: Master station (CPP)
+# - vpp-vcc: VCC coordinator (placeholder)
+# - vpp-upf: 5G UPF simulator (placeholder)
+# - vpp-gen: Device simulator (placeholder)
+# - vpp-analyzer: Protocol analyzer for traffic capture and analysis
+#
+# Network: 10.0.1.0/24 (vpp-net)
+# Ports: 8090 (vpp-master)
+
+services:
+  # Master Station (CPP) Service
+  # Central control point for VPP system
+  vpp-master:
+    image: vpp-master-vpp-master:latest
+    container_name: vpp-master
+    networks:
+      vpp-net:
+        ipv4_address: 10.0.1.10
+    environment:
+      - LISTEN_ADDR=0.0.0.0:8080
+      - LOG_LEVEL=INFO
+    ports:
+      - "8090:8080"
+    volumes:
+      - ./logs/master:/var/log/vpp
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+    restart: on-failure:3
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  # VCC Coordinator Service (Placeholder)
+  # Coordinates virtual power plant operations
+  vpp-vcc:
+    image: alpine:latest
+    container_name: vpp-vcc
+    networks:
+      vpp-net:
+        ipv4_address: 10.0.1.20
+    environment:
+      - MASTER_URL=http://vpp-master:8080
+      - LOG_LEVEL=INFO
+    command: sleep 3600
+    volumes:
+      - ./logs/vcc:/var/log/vpp
+    restart: on-failure:3
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  # 5G UPF (User Plane Function) Service (Placeholder)
+  # Simulates 5G network transport layer
+  vpp-upf:
+    image: alpine:latest
+    container_name: vpp-upf
+    networks:
+      vpp-net:
+        ipv4_address: 10.0.1.30
+    environment:
+      - MASTER_URL=http://vpp-master:8080
+      - LOG_LEVEL=INFO
+    command: sleep 3600
+    volumes:
+      - ./logs/upf:/var/log/vpp
+    restart: on-failure:3
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  # Device Simulator Service (Placeholder)
+  # Simulates power generation, storage, and demand devices
+  vpp-gen:
+    image: alpine:latest
+    container_name: vpp-gen
+    networks:
+      vpp-net:
+        ipv4_address: 10.0.1.40
+    environment:
+      - MASTER_URL=http://vpp-master:8080
+      - LOG_LEVEL=INFO
+    command: sleep 3600
+    volumes:
+      - ./logs/gen:/var/log/vpp
+    restart: on-failure:3
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  # Protocol Analyzer Service
+  # Captures and analyzes industrial control protocol traffic
+  # Uses Docker network interface (eth0) to capture traffic
+  vpp-analyzer:
+    image: vpp-analyzer:latest
+    container_name: vpp-analyzer
+    networks:
+      vpp-net:
+        ipv4_address: 10.0.1.50
+    environment:
+      - CAPTURE_INTERFACE=eth0
+      - OUTPUT_DIR=/pcap
+      - LOG_LEVEL=INFO
+      - PYTHONUNBUFFERED=1
+    volumes:
+      - ./pcap:/pcap
+      - ./logs/analyzer:/var/log/vpp
+    cap_add:
+      - NET_ADMIN
+      - NET_RAW
+    restart: on-failure:3
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+# Network Configuration
+# Custom bridge network for VPP system
+networks:
+  vpp-net:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 10.0.1.0/24
+          gateway: 10.0.1.1
+
+# Volume Configuration
+# Persistent storage for pcap files and logs
+volumes:
+  pcap:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ./pcap

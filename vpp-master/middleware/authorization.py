@@ -181,8 +181,8 @@ def setup_authorization(app, protected_routes=None):
                 )
                 abort(403, "Forbidden")
             
-            # Store user context for later use in routes
-            request.user_context = user_context
+            # User context is already set by authentication middleware
+            # No need to set it again
             
             logger.debug(
                 "Authorization check passed",

@@ -42,7 +42,7 @@ def setup_request_logging(app):
             "method": request.method,
             "path": request.path,
             "remote_addr": request.remote_addr,
-            "user_agent": request.user_agent,
+            "user_agent": request.headers.get('User-Agent', 'unknown'),
             "query_string": request.query_string
         }
         logger.handle(log_record)

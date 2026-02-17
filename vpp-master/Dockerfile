@@ -16,8 +16,8 @@ RUN apt-get update && apt-get install -y \
 # 复制项目文件
 COPY . .
 
-# 复制bottle-framework
-COPY ../bottle-framework ./bottle-framework
+# 复制bottle-framework (if needed)
+# COPY ../bottle-framework ./bottle-framework
 
 # 安装Python依赖
 RUN pip install --no-cache-dir -r requirements.txt

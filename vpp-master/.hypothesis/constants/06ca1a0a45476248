@@ -1,4 +1,0 @@
-# file: /Users/guoshuguang/my-project/kiro/power-emulator/vpp-master/utils/query_optimizer.py
-# hypothesis_version: 6.151.6
-
-[300, 'get_all_devices', 'get_analysis_results', 'get_devices_by_type', 'get_dispatch_history', 'online', 'pending']

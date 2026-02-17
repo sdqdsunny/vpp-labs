@@ -1,4 +1,0 @@
-# file: /Users/guoshuguang/my-project/kiro/power-emulator/vpp-master/models/user.py
-# hypothesis_version: 6.151.6
-
-['Permission', 'Role', 'User', 'audit_logs', 'permission_id', 'permissions', 'permissions.id', 'role_id', 'role_permissions', 'roles', 'roles.id', 'user_id', 'user_roles', 'users', 'users.id']

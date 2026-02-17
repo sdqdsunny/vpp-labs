@@ -1,4 +1,0 @@
-# file: /Users/guoshuguang/my-project/kiro/power-emulator/vpp-master/routes/devices.py
-# hypothesis_version: 6.151.6
-
-[200, 201, '/api/v1/devices', 'DELETE', 'GET', 'POST', 'PUT', 'application/json', 'page', 'page_size', 'request_id', 'status', 'unknown']

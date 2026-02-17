@@ -1,4 +1,0 @@
-# file: /Users/guoshuguang/my-project/kiro/power-emulator/vpp-master/models/dispatch.py
-# hypothesis_version: 6.151.6
-
-[255, 500, 'Device', 'command_type', 'completed', 'created_at', 'device_id', 'devices.id', 'dispatches', 'error_message', 'executing', 'execution_time', 'failed', 'id', 'idx_dispatch_status', 'pending', 'priority_level', 'result_data', 'retry_count', 'scheduled_time', 'status', 'target_value', 'updated_at']

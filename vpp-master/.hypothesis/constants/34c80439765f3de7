@@ -1,4 +1,0 @@
-# file: /Users/guoshuguang/my-project/kiro/power-emulator/vpp-master/services/protocol_converter.py
-# hypothesis_version: 6.151.6
-
-['error', 'field_mappings', 'iec_104', 'is_active', 'mapping_rules', 'mqtt', 'protocol', 'source_protocol', 'supported_protocols', 'target_protocol', 'transformations']

@@ -1,4 +1,0 @@
-# file: /Users/guoshuguang/my-project/kiro/power-emulator/vpp-master/utils/validators.py
-# hypothesis_version: 6.151.6
-
-[255, 'Current system state', 'Device capabilities', 'Device location', 'End time for metrics', 'Mapping rules', 'Message data', 'Priority level 0-10', 'Protocol type', 'Report filters', 'Source protocol', 'Target device ID', 'Target protocol', 'Type of device', 'battery', 'completed', 'emergency_stop', 'error', 'executing', 'failed', 'grid', 'hourly', 'iec_104', 'iec_61850', 'load', 'modbus', 'mode_change', 'mqtt', 'offline', 'online', 'parameter_update', 'pending', 'power_adjust', 'solar', 'wind']

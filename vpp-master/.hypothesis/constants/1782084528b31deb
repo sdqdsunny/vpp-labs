@@ -1,4 +1,0 @@
-# file: /Users/guoshuguang/my-project/kiro/power-emulator/vpp-master/utils/metrics.py
-# hypothesis_version: 6.151.6
-
-['analysis_type', 'command_type', 'device_type', 'endpoint', 'error_code', 'error_type', 'method', 'query_type', 'status', 'vpp_analysis_total', 'vpp_api_errors_total', 'vpp_device_count', 'vpp_dispatch_total']

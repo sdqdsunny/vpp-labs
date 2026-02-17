@@ -1,24 +1,9 @@
-# Python
+# Python - Cache and compiled files only
 __pycache__/
 *.py[cod]
 *$py.class
 *.so
 .Python
-build/
-develop-eggs/
-dist/
-downloads/
-eggs/
-.eggs/
-lib/
-lib64/
-parts/
-sdist/
-var/
-wheels/
-*.egg-info/
-.installed.cfg
-*.egg
 
 # Virtual environments
 venv/
@@ -32,22 +17,22 @@ env/
 *.swo
 *~
 
-# Testing
+# Testing - Cache only, keep test files
 .pytest_cache/
 .coverage
 htmlcov/
 .hypothesis/
 
-# Database
+# Database - Local instances only
 *.db
 *.sqlite
 *.sqlite3
 
-# Logs
+# Logs - Runtime logs only
 logs/
 *.log
 
-# Environment
+# Environment - Local config only
 .env
 .env.local
 
@@ -55,13 +40,11 @@ logs/
 .DS_Store
 Thumbs.db
 
-# Bottle framework submodule
-bottle-framework/
-
-# Node modules (if any)
-node_modules/
-
-# Build artifacts
+# Build artifacts - Keep source, ignore build output
 dist/
 build/
 *.egg-info/
+*.egg
+
+# Node modules (if any)
+node_modules/

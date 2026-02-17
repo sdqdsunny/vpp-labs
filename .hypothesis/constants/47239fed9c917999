@@ -1,4 +1,0 @@
-# file: /Users/guoshuguang/my-project/kiro/power-emulator/vpp-master/utils/transactions.py
-# hypothesis_version: 6.151.6
-
-['T', 'checked_in', 'checked_out', 'checkedin', 'checkedout', 'commit', 'max_overflow', 'pool_class', 'pool_size', 'refresh', 'rollback', 'rollback_failure', 'session', 'transaction']

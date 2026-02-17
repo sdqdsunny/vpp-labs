@@ -1,4 +1,0 @@
-# file: /Users/guoshuguang/my-project/kiro/power-emulator/vpp-master/middleware/rate_limiter.py
-# hypothesis_version: 6.151.6
-
-[100, 429, 1000, 3600, '/', '/docs', '/health', '/metrics', 'RATE_LIMIT_EXCEEDED', 'X-API-Key', 'X-RateLimit-Limit', 'X-RateLimit-Reset', 'after_request', 'application/json', 'before_request', 'code', 'endpoint', 'endpoint_per_minute', 'error', 'limit_type', 'message', 'request_id', 'unknown', 'user_hourly', 'user_id']

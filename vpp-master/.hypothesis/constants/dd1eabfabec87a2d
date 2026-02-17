@@ -1,4 +1,0 @@
-# file: /Users/guoshuguang/my-project/kiro/power-emulator/vpp-master/services/device_manager.py
-# hypothesis_version: 6.151.6
-
-[100, 'Page must be >= 1', 'config', 'device_config_update', 'device_delete', 'device_discovery', 'device_get', 'device_id', 'device_offline_check', 'device_registration', 'device_status_get', 'device_status_update', 'device_type', 'error', 'is_error', 'is_offline', 'is_online', 'last_heartbeat', 'location', 'offline', 'online', 'page', 'page_size', 'status', 'total_count']

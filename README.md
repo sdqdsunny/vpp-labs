@@ -20,6 +20,13 @@ A comprehensive Virtual Power Plant (VPP) system with complete device management
 - **Tests Passing**: 460/460 (100%) ✅
 - **Code Coverage**: 94.6% ✅
 
+### VPP Phase 2 Testing & Debugging (Task 2)
+- **Test Dashboard**: ✅ Fixed (756 unit tests, 41 property tests)
+- **Protocol Analyzer**: ✅ Fully Operational
+- **Traffic Generation**: ✅ Complete (40 simulated packets, 6 protocols)
+- **Flow Analysis**: ✅ Fixed (HTTP status checking, error handling)
+- **Docker Integration**: ✅ All 5 containers running healthy
+
 ## 📋 Overview
 
 The Power Emulator is a complete implementation of the VPP system with two major components:
@@ -341,6 +348,37 @@ power-emulator/
 - Results summary and analysis visualization
 - Export functionality
 
+### Task 2: Protocol Analyzer & Traffic Generation
+
+**Protocol Analyzer Tool**
+- Real-time protocol traffic analysis
+- Support for 11 industrial protocols (IEC61850, Modbus, DNP3, MQTT, OPC UA, CAN, RS-232/485, LoRaWAN, XMPP, DL/T, PROFINET)
+- Three analysis views:
+  - 📊 Protocol Statistics - Packet counts, bytes, rates, errors
+  - 📦 Data Packets - Individual packet details with payload preview
+  - 🔗 Flow Analysis - Source-destination communication patterns
+- Real-time and manual refresh modes
+- Data reset functionality
+
+**Traffic Generation Script**
+- Automated traffic generation for testing and demonstration
+- Generates 40 simulated packets across 6 protocols
+- Supports both container and host execution
+- Auto-detects runtime environment
+- Generates traffic for:
+  - Health checks (4 services)
+  - Protocol analysis (6 protocols)
+  - Test dashboard queries
+  - Phase1 integration status
+- Comprehensive logging with timestamps
+
+**Flow Analysis Fixes**
+- HTTP status code validation
+- Detailed error messages for debugging
+- Data validation for empty responses
+- Improved error handling across all tabs
+- Better user feedback on failures
+
 ## 🧪 Testing
 
 ### Test Coverage
@@ -419,31 +457,37 @@ All 25 requirements fully implemented ✅
 
 ## 🐳 Docker Containers
 
-### Running Containers
+### Running Containers (Microservices Architecture)
 
-The project uses the following Docker containers:
+The project uses the following Docker containers for the microservices deployment:
 
-| Container Name | Image | Port | Purpose | Project |
+| Container Name | Image | Port | Purpose | Status |
 |---|---|---|---|---|
-| **vpp-master** | vpp-master-vpp-master | 8090:8080 | VPP Master API application | VPP Master |
-| **vpp-master-postgres** | postgres:15-alpine | 5432 | PostgreSQL database for VPP Master | VPP Master |
-| **vpp-master-redis** | redis:7-alpine | 6380:6379 | Redis cache for VPP Master | VPP Master |
-| **vpp-redis** | redis:7-alpine | 6379:6379 | Redis cache for Phase 2 Simulation | Phase 2 Simulation |
-| **vpp-mosquitto** | eclipse-mosquitto:latest | 1883:1883, 9001:9001 | MQTT message broker | Phase 2 Simulation |
-| **vpp-fuxa** | frangoteam/fuxa:latest | 1881:1881 | FUXA visualization dashboard | Phase 2 Simulation |
-| **vpp-analyzer-mqtt** | fuxa-integration-analyzer | - | MQTT analyzer for integration | Phase 2 Simulation |
+| **vpp-master** | vpp-master:latest | 8080 | VPP Master API & Coordinator | ✅ Healthy |
+| **vpp-power-generation** | vpp-power-generation:latest | 8081 | Power Generation Simulator | ✅ Healthy |
+| **vpp-storage** | vpp-storage:latest | 8082 | Energy Storage Simulator | ✅ Healthy |
+| **vpp-demand** | vpp-demand:latest | 8083 | Demand/Load Simulator | ✅ Healthy |
+| **vpp-sniffer** | nicolaka/netshoot:latest | - | Network Traffic Capture (tcpdump) | ✅ Running |
+
+### Microservices Network
+
+- **Network**: vpp-network (10.0.8.0/24)
+- **Master**: 10.0.8.2
+- **Power Generation**: 10.0.8.4
+- **Storage**: 10.0.8.5
+- **Demand**: 10.0.8.6
+- **Sniffer**: 10.0.8.7
 
 ### Container Management
 
 **Start all containers:**
 ```bash
-docker-compose up
-cd vpp-master && docker-compose up
+docker-compose -f docker-compose-microservices.yml up -d
 ```
 
 **Stop all containers:**
 ```bash
-docker stop vpp-master vpp-fuxa vpp-analyzer-mqtt vpp-redis vpp-mosquitto vpp-master-postgres vpp-master-redis
+docker-compose -f docker-compose-microservices.yml down
 ```
 
 **View running containers:**
@@ -456,16 +500,18 @@ docker ps
 docker logs <container_name>
 ```
 
+**Run traffic generation script:**
+```bash
+docker exec vpp-master python3 /app/generate_vpp_traffic.py
+```
+
 ### Container Architecture
 
-**VPP Master Stack:**
-- vpp-master (API) → vpp-master-postgres (Database) + vpp-master-redis (Cache)
-
-**Phase 2 Simulation Stack:**
-- vpp-redis (Cache)
-- vpp-mosquitto (MQTT Broker)
-- vpp-fuxa (Visualization)
-- vpp-analyzer-mqtt (MQTT Analysis)
+**Microservices Stack:**
+- vpp-master (API & Coordinator) ↔ vpp-power-generation (Port 8081)
+- vpp-master (API & Coordinator) ↔ vpp-storage (Port 8082)
+- vpp-master (API & Coordinator) ↔ vpp-demand (Port 8083)
+- vpp-sniffer (Network monitoring with tcpdump)
 
 ## 🚢 Deployment
 
@@ -595,7 +641,8 @@ This project was developed with a focus on:
 
 ---
 
-**Status**: ✅ Production Ready | **Last Updated**: 2026-02-16 | **Version**: 2.0.0
+**Status**: ✅ Production Ready | **Last Updated**: 2026-02-18 | **Version**: 2.1.0
 
 **Phase 1**: ✅ Complete (25/25 requirements, 58/58 properties)
 **Phase 2**: ✅ Complete (12/12 requirement groups, 60/60 properties)
+**Task 2**: ✅ Complete (Protocol Analyzer, Traffic Generation, Flow Analysis Fixes)

@@ -1,43 +1,36 @@
-FROM python:3.9-slim
+FROM python:3.11-slim
 
 WORKDIR /app
 
-# Install system dependencies including protocol libraries
-RUN apt-get update && apt-get install -y \
-    gcc \
-    g++ \
-    make \
-    postgresql-client \
+# Install system dependencies
+RUN apt-get update && apt-get install -y --no-install-recommends \
     curl \
-    git \
-    libssl-dev \
-    libffi-dev \
+    iputils-ping \
+    net-tools \
+    dnsutils \
     && rm -rf /var/lib/apt/lists/*
 
 # Copy requirements
 COPY requirements.txt .
 
 # Install Python dependencies
-RUN pip install --no-cache-dir -r requirements.txt
-
-# Install protocol library dependencies
-# pymodbus - already in requirements.txt
-# paho-mqtt - already in requirements.txt
-# libiec61850 and opendnp3 are optional C/C++ libraries
-# They can be installed if needed, but Python bindings are available via pip
+RUN pip install --no-cache-dir --upgrade pip setuptools wheel && \
+    pip install --no-cache-dir -r requirements.txt
 
 # Copy application code
-COPY . .
+COPY vpp-phase2-simulation/ .
+
+# Make entrypoint script executable
+RUN chmod +x entrypoint.sh
 
 # Create logs directory
 RUN mkdir -p logs
 
 # Expose ports
-EXPOSE 8080 8081
+EXPOSE 8080 8081 8082 8083
 
-# Health check
-HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
-    CMD curl -f http://localhost:8080/health || exit 1
+# Create logs directories for all services
+RUN mkdir -p logs/coordinator logs/power_generation logs/battery_system logs/load_manager
 
-# Run application
-CMD ["python", "app.py"]
+# Run application based on NODE_TYPE environment variable
+CMD ["./entrypoint.sh"]

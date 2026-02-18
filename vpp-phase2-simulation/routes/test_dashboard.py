@@ -67,6 +67,7 @@ def create_test_dashboard_routes(app):
 def execute_tests(test_type):
     """Execute tests based on type."""
     global test_results
+    import re
     
     test_results["status"] = "running"
     test_results["output"] = ""
@@ -102,27 +103,33 @@ def execute_tests(test_type):
         output = result.stdout + result.stderr
         test_results["output"] = output
         
-        # Parse results
-        if "passed" in output:
-            # Extract test counts
-            import re
-            match = re.search(r'(\d+) passed', output)
-            if match:
-                test_results["tests_passed"] = int(match.group(1))
-            
-            match = re.search(r'(\d+) failed', output)
-            if match:
-                test_results["tests_failed"] = int(match.group(1))
-            else:
-                test_results["tests_failed"] = 0
-            
-            test_results["tests_total"] = test_results["tests_passed"] + test_results["tests_failed"]
+        # Parse results - look for pytest summary line
+        # Pattern: "X passed" or "X passed, Y failed" or "X failed"
+        passed_match = re.search(r'(\d+)\s+passed', output)
+        failed_match = re.search(r'(\d+)\s+failed', output)
         
-        test_results["status"] = "completed"
+        if passed_match:
+            test_results["tests_passed"] = int(passed_match.group(1))
+        else:
+            test_results["tests_passed"] = 0
+        
+        if failed_match:
+            test_results["tests_failed"] = int(failed_match.group(1))
+        else:
+            test_results["tests_failed"] = 0
+        
+        test_results["tests_total"] = test_results["tests_passed"] + test_results["tests_failed"]
+        
+        # If no tests found, check if pytest ran at all
+        if test_results["tests_total"] == 0 and "passed" not in output and "failed" not in output:
+            test_results["status"] = "error"
+            test_results["output"] = f"No tests found or pytest failed to run.\n\nCommand: {cmd}\n\nOutput:\n{output}"
+        else:
+            test_results["status"] = "completed"
         
     except Exception as e:
         test_results["status"] = "error"
-        test_results["output"] = str(e)
+        test_results["output"] = f"Exception occurred: {str(e)}"
 
 
 def get_dashboard_html():

@@ -16,7 +16,6 @@ import threading
 
 from apscheduler.schedulers.background import BackgroundScheduler
 from tenacity import retry, stop_after_attempt, wait_exponential, retry_if_exception_type
-from prometheus_client import Counter, Histogram, Gauge
 
 from utils.structured_logger import get_structured_logger
 
@@ -29,35 +28,16 @@ class SyncType(Enum):
     SCENARIOS = "scenarios"
     METRICS = "metrics"
 
-
-# Prometheus metrics
-sync_counter = Counter(
-    'phase1_sync_total',
-    'Total Phase 1 synchronizations',
-    ['sync_type', 'status']
-)
-
-sync_duration = Histogram(
-    'phase1_sync_duration_seconds',
-    'Phase 1 synchronization duration',
-    ['sync_type']
-)
-
-sync_items = Counter(
-    'phase1_sync_items_total',
-    'Total items synchronized',
-    ['sync_type', 'status']
-)
-
-last_sync_time = Gauge(
-    'phase1_last_sync_timestamp',
-    'Timestamp of last successful sync'
-)
-
-connection_status = Gauge(
-    'phase1_connection_status',
-    'Phase 1 API connection status (1=healthy, 0=unhealthy)'
-)
+# Metrics disabled - prometheus removed
+# last_sync_time = Gauge(
+#     'phase1_last_sync_timestamp',
+#     'Timestamp of last successful sync'
+# )
+#
+# connection_status = Gauge(
+#     'phase1_connection_status',
+#     'Phase 1 API connection status (1=healthy, 0=unhealthy)'
+# )
 
 
 class Phase1IntegrationService:
@@ -274,27 +254,21 @@ class Phase1IntegrationService:
         }
         
         try:
-            # Time the operation
-            with sync_duration.labels(sync_type=sync_type).time():
-                if sync_type_enum == SyncType.FULL:
-                    result.update(self._sync_full())
-                elif sync_type_enum == SyncType.INCREMENTAL:
-                    result.update(self._sync_incremental())
-                elif sync_type_enum == SyncType.DEVICES:
-                    result.update(self.sync_devices())
-                elif sync_type_enum == SyncType.SCENARIOS:
-                    result.update(self.sync_scenarios())
-                elif sync_type_enum == SyncType.METRICS:
-                    result.update(self.sync_metrics())
+            # Execute synchronization
+            if sync_type_enum == SyncType.FULL:
+                result.update(self._sync_full())
+            elif sync_type_enum == SyncType.INCREMENTAL:
+                result.update(self._sync_incremental())
+            elif sync_type_enum == SyncType.DEVICES:
+                result.update(self.sync_devices())
+            elif sync_type_enum == SyncType.SCENARIOS:
+                result.update(self.sync_scenarios())
+            elif sync_type_enum == SyncType.METRICS:
+                result.update(self.sync_metrics())
             
             result["status"] = "success"
             self.last_sync_time = start_time
             self.last_sync_type = sync_type
-            
-            # Update metrics
-            sync_counter.labels(sync_type=sync_type, status="success").inc()
-            sync_items.labels(sync_type=sync_type, status="success").inc(result.get("synced_count", 0))
-            last_sync_time.set(start_time.timestamp())
             
             self.logger.info(
                 f"Sync completed successfully",
@@ -309,10 +283,6 @@ class Phase1IntegrationService:
             result["error"] = str(e)
             result["error_count"] += 1
             result["errors"].append(str(e))
-            
-            # Update metrics
-            sync_counter.labels(sync_type=sync_type, status="failed").inc()
-            sync_items.labels(sync_type=sync_type, status="failed").inc(result.get("error_count", 0))
             
             self.logger.error(
                 f"Sync failed: {str(e)}",

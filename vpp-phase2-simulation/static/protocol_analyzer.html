@@ -539,12 +539,18 @@
         async function refreshStats() {
             try {
                 const response = await fetch('/api/analyzer/stats');
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                
                 const stats = await response.json();
                 
                 const tbody = document.getElementById('statsBody');
                 
-                if (stats.length === 0) {
+                if (!stats || stats.length === 0) {
                     tbody.innerHTML = '<tr><td colspan="7" class="empty-state"><div class="empty-state-icon">📭</div><div>暂无数据</div></td></tr>';
+                    document.getElementById('statsMessage').innerHTML = '';
                     return;
                 }
                 
@@ -559,9 +565,10 @@
                         <td>${stat.error_count}</td>
                     </tr>
                 `).join('');
+                document.getElementById('statsMessage').innerHTML = '';
             } catch (error) {
                 console.error('Error refreshing stats:', error);
-                document.getElementById('statsMessage').innerHTML = '<div class="error-message">加载统计数据失败</div>';
+                document.getElementById('statsMessage').innerHTML = '<div class="error-message">加载统计数据失败: ' + error.message + '</div>';
             }
         }
         
@@ -576,6 +583,11 @@
                 if (protocol) url += `&protocol=${protocol}`;
                 
                 const response = await fetch(url);
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                
                 const packets = await response.json();
                 
                 const tbody = document.getElementById('packetsBody');
@@ -587,8 +599,9 @@
                     );
                 }
                 
-                if (filtered.length === 0) {
+                if (!filtered || filtered.length === 0) {
                     tbody.innerHTML = '<tr><td colspan="8" class="empty-state"><div class="empty-state-icon">📭</div><div>暂无数据</div></td></tr>';
+                    document.getElementById('packetsMessage').innerHTML = '';
                     return;
                 }
                 
@@ -604,9 +617,10 @@
                         <td><code style="font-size: 11px;">${truncate(packet.payload_preview, 30)}</code></td>
                     </tr>
                 `).join('');
+                document.getElementById('packetsMessage').innerHTML = '';
             } catch (error) {
                 console.error('Error refreshing packets:', error);
-                document.getElementById('packetsMessage').innerHTML = '<div class="error-message">加载数据包失败</div>';
+                document.getElementById('packetsMessage').innerHTML = '<div class="error-message">加载数据包失败: ' + error.message + '</div>';
             }
         }
         
@@ -615,12 +629,18 @@
             try {
                 const limit = document.getElementById('flowLimitInput').value;
                 const response = await fetch(`/api/analyzer/flows?limit=${limit}`);
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                
                 const flows = await response.json();
                 
                 const tbody = document.getElementById('flowsBody');
                 
-                if (flows.length === 0) {
+                if (!flows || flows.length === 0) {
                     tbody.innerHTML = '<tr><td colspan="7" class="empty-state"><div class="empty-state-icon">📭</div><div>暂无数据</div></td></tr>';
+                    document.getElementById('flowsMessage').innerHTML = '';
                     return;
                 }
                 
@@ -635,9 +655,10 @@
                         <td>${formatTime(flow.last_seen)}</td>
                     </tr>
                 `).join('');
+                document.getElementById('flowsMessage').innerHTML = '';
             } catch (error) {
                 console.error('Error refreshing flows:', error);
-                document.getElementById('flowsMessage').innerHTML = '<div class="error-message">加载流量分析失败</div>';
+                document.getElementById('flowsMessage').innerHTML = '<div class="error-message">加载流量分析失败: ' + error.message + '</div>';
             }
         }
         

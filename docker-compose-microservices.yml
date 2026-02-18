@@ -1,0 +1,148 @@
+version: '3.8'
+
+# Note: Always use --rm flag when running containers to automatically remove them on exit
+# Usage: docker-compose -f docker-compose-microservices.yml up -d --rm
+
+services:
+  # 主站节点 - 虚拟电厂协调中心
+  master:
+    build:
+      context: .
+      dockerfile: vpp-phase2-simulation/Dockerfile
+    image: vpp-master:latest
+    container_name: vpp-master
+    environment:
+      - PYTHONUNBUFFERED=1
+      - NODE_TYPE=master
+      - NODE_NAME=Master_Node
+      - API_PORT=8080
+      - API_HOST=0.0.0.0
+      - ENV=production
+      - LOG_LEVEL=INFO
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./vpp-phase2-simulation/logs/coordinator:/app/logs
+    networks:
+      vpp-network:
+        ipv4_address: 10.0.8.2
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    restart: unless-stopped
+
+  # 电源侧节点 - 光伏/风电模拟
+  power-generation:
+    build:
+      context: .
+      dockerfile: vpp-phase2-simulation/Dockerfile
+    image: vpp-power-generation:latest
+    container_name: vpp-power-generation
+    environment:
+      - PYTHONUNBUFFERED=1
+      - NODE_TYPE=generation
+      - NODE_NAME=Generation_Node
+      - API_PORT=8081
+      - API_HOST=0.0.0.0
+      - ENV=production
+      - LOG_LEVEL=INFO
+    ports:
+      - "8081:8081"
+    volumes:
+      - ./vpp-phase2-simulation/logs/power_generation:/app/logs
+    networks:
+      vpp-network:
+        ipv4_address: 10.0.8.4
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8081/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    restart: unless-stopped
+
+  # 储能侧节点 - 电池管理系统
+  storage:
+    build:
+      context: .
+      dockerfile: vpp-phase2-simulation/Dockerfile
+    image: vpp-storage:latest
+    container_name: vpp-storage
+    environment:
+      - PYTHONUNBUFFERED=1
+      - NODE_TYPE=storage
+      - NODE_NAME=Storage_Node
+      - API_PORT=8082
+      - API_HOST=0.0.0.0
+      - ENV=production
+      - LOG_LEVEL=INFO
+    ports:
+      - "8082:8082"
+    volumes:
+      - ./vpp-phase2-simulation/logs/storage:/app/logs
+    networks:
+      vpp-network:
+        ipv4_address: 10.0.8.5
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8082/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    restart: unless-stopped
+
+  # 需求侧节点 - 负荷管理
+  demand:
+    build:
+      context: .
+      dockerfile: vpp-phase2-simulation/Dockerfile
+    image: vpp-demand:latest
+    container_name: vpp-demand
+    environment:
+      - PYTHONUNBUFFERED=1
+      - NODE_TYPE=demand
+      - NODE_NAME=Demand_Node
+      - API_PORT=8083
+      - API_HOST=0.0.0.0
+      - ENV=production
+      - LOG_LEVEL=INFO
+    ports:
+      - "8083:8083"
+    volumes:
+      - ./vpp-phase2-simulation/logs/demand:/app/logs
+    networks:
+      vpp-network:
+        ipv4_address: 10.0.8.6
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8083/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    restart: unless-stopped
+
+  # tcpdump - 流量抓包和分析
+  sniffer:
+    image: nicolaka/netshoot:latest
+    container_name: vpp-sniffer
+    cap_add:
+      - NET_ADMIN
+      - NET_RAW
+    volumes:
+      - ./captures:/captures
+    networks:
+      vpp-network:
+        ipv4_address: 10.0.8.7
+    command: tcpdump -i eth0 -w /captures/vpp-traffic.pcap
+    restart: unless-stopped
+
+networks:
+  vpp-network:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 10.0.8.0/24
+          gateway: 10.0.8.1

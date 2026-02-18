@@ -37,6 +37,21 @@ tenacity==8.2.3
 paho-mqtt==1.6.1
 pymodbus==3.0.0
 
+# Phase 1 Integration - OPC UA, CAN, Profinet
+opcua==0.98.13
+asyncua==0.10.0
+python-can==4.2.2
+cantools==4.4.1
+pycomm3==0.32.0
+
+# Phase 2 Integration - LoRaWAN
+pylorawan==0.2.13
+
+# Phase 3 Integration - XMPP, Serial, Power Grid Protocols
+sleekxmpp==1.8.0
+pyserial==3.5
+pyserial-asyncio==0.6
+
 # Development
 black==23.12.0
 flake8==6.1.0

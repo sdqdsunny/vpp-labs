@@ -61,6 +61,54 @@ class ProtocolManagementService:
         except Exception as e:
             logger.warning(f"Could not register MQTT adapter: {e}")
         
+        try:
+            from services.protocol_adapters.opcua_adapter import OPCUAAdapter
+            self.registry.register("opcua", OPCUAAdapter)
+        except Exception as e:
+            logger.warning(f"Could not register OPC UA adapter: {e}")
+        
+        try:
+            from services.protocol_adapters.can_adapter import CANAdapter
+            self.registry.register("can", CANAdapter)
+        except Exception as e:
+            logger.warning(f"Could not register CAN adapter: {e}")
+        
+        try:
+            from services.protocol_adapters.profinet_adapter import ProfinetAdapter
+            self.registry.register("profinet", ProfinetAdapter)
+        except Exception as e:
+            logger.warning(f"Could not register Profinet adapter: {e}")
+        
+        try:
+            from services.protocol_adapters.lorawan_adapter import LoRaWANAdapter
+            self.registry.register("lorawan", LoRaWANAdapter)
+        except Exception as e:
+            logger.warning(f"Could not register LoRaWAN adapter: {e}")
+        
+        try:
+            from services.protocol_adapters.xmpp_adapter import XMPPAdapter
+            self.registry.register("xmpp", XMPPAdapter)
+        except Exception as e:
+            logger.warning(f"Could not register XMPP adapter: {e}")
+        
+        try:
+            from services.protocol_adapters.rs232_adapter import RS232Adapter
+            self.registry.register("rs232", RS232Adapter)
+        except Exception as e:
+            logger.warning(f"Could not register RS-232 adapter: {e}")
+        
+        try:
+            from services.protocol_adapters.rs485_adapter import RS485Adapter
+            self.registry.register("rs485", RS485Adapter)
+        except Exception as e:
+            logger.warning(f"Could not register RS-485 adapter: {e}")
+        
+        try:
+            from services.protocol_adapters.dlt_adapter import DLTAdapter
+            self.registry.register("dlt", DLTAdapter)
+        except Exception as e:
+            logger.warning(f"Could not register DL/T adapter: {e}")
+        
         logger.info(f"Registered {len(self.registry.list_protocols())} protocol adapters")
     
     def _initialize_mappings(self) -> None:

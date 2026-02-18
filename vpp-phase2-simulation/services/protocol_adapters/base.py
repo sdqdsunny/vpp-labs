@@ -20,6 +20,17 @@ class ProtocolType(Enum):
     MODBUS = "modbus"
     DNP3 = "dnp3"
     MQTT = "mqtt"
+    OPCUA = "opcua"
+    CAN = "can"
+    PROFINET = "profinet"
+    LORAWAN = "lorawan"
+    XMPP = "xmpp"
+    RS232 = "rs232"
+    RS485 = "rs485"
+    DLT634 = "dlt634"
+    DLT645 = "dlt645"
+    DLT698 = "dlt698"
+    DLT476 = "dlt476"
 
 
 class ProtocolException(Exception):

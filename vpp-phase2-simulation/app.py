@@ -21,6 +21,7 @@ from routes.visualization import create_visualization_routes
 from routes.test_dashboard import create_test_dashboard_routes
 from routes.phase1_integration import create_phase1_integration_routes
 from routes.protocol_analyzer import create_protocol_analyzer_routes
+from routes.security_tester import create_security_tester_routes
 
 # Setup logging
 logger = setup_logging(
@@ -127,6 +128,18 @@ def analyzer_ui():
         return "Protocol Analyzer UI not found"
 
 
+@app.route("/security", method="GET")
+def security_tester_ui():
+    """Serve security tester UI"""
+    try:
+        with open("static/security_tester.html", "r", encoding="utf-8") as f:
+            response.content_type = "text/html; charset=utf-8"
+            return f.read()
+    except FileNotFoundError:
+        response.status = 404
+        return "Security Tester UI not found"
+
+
 @app.error(500)
 def error_500(err):
     """Handle 500 errors."""
@@ -165,6 +178,7 @@ def create_app():
     create_test_dashboard_routes(app)
     create_phase1_integration_routes(app)
     create_protocol_analyzer_routes(app)
+    create_security_tester_routes(app)
     
     logger.info("VPP Phase 2 Simulation Framework initialized")
     logger.info("Phase 1 Integration Service started with automatic synchronization")

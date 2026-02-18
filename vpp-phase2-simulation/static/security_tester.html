@@ -1,0 +1,702 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VPP 安全测试工具</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        
+        .header {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+        }
+        
+        .header h1 {
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 28px;
+        }
+        
+        .header p {
+            color: #666;
+            font-size: 14px;
+        }
+        
+        .tools-status {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+        
+        .tool-status {
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+            font-size: 13px;
+            font-weight: 600;
+        }
+        
+        .tool-available {
+            background: #c6f6d5;
+            color: #22543d;
+            border: 2px solid #48bb78;
+        }
+        
+        .tool-unavailable {
+            background: #fed7d7;
+            color: #742a2a;
+            border: 2px solid #f56565;
+        }
+        
+        .tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            background: white;
+            padding: 10px;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            flex-wrap: wrap;
+        }
+        
+        .tab-btn {
+            padding: 10px 20px;
+            border: 2px solid transparent;
+            background: transparent;
+            color: #666;
+            cursor: pointer;
+            border-radius: 5px;
+            transition: all 0.3s ease;
+            font-weight: 600;
+        }
+        
+        .tab-btn.active {
+            background: #667eea;
+            color: white;
+            border-color: #667eea;
+        }
+        
+        .tab-btn:hover {
+            background: #f0f0f0;
+        }
+        
+        .tab-btn.active:hover {
+            background: #5568d3;
+        }
+        
+        .tab-content {
+            display: none;
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+        
+        .test-form {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        label {
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 8px;
+            font-size: 13px;
+        }
+        
+        input, select, textarea {
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 13px;
+            font-family: inherit;
+        }
+        
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+        
+        button {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-primary {
+            background: #667eea;
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background: #5568d3;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+        }
+        
+        .btn-secondary {
+            background: #48bb78;
+            color: white;
+        }
+        
+        .btn-secondary:hover {
+            background: #38a169;
+        }
+        
+        .btn-danger {
+            background: #f56565;
+            color: white;
+        }
+        
+        .btn-danger:hover {
+            background: #e53e3e;
+        }
+        
+        .test-buttons {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        
+        .results {
+            background: #f9f9f9;
+            padding: 20px;
+            border-radius: 8px;
+            border-left: 4px solid #667eea;
+            margin-top: 20px;
+        }
+        
+        .result-item {
+            background: white;
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 10px;
+            border-left: 4px solid #48bb78;
+        }
+        
+        .result-item.error {
+            border-left-color: #f56565;
+            background: #fff5f5;
+        }
+        
+        .result-title {
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 10px;
+        }
+        
+        .result-content {
+            color: #666;
+            font-size: 13px;
+            font-family: 'Courier New', monospace;
+            white-space: pre-wrap;
+            word-break: break-all;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 20px;
+            color: #999;
+        }
+        
+        .spinner {
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #667eea;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 10px;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .status-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            margin-right: 10px;
+        }
+        
+        .status-success {
+            background: #c6f6d5;
+            color: #22543d;
+        }
+        
+        .status-error {
+            background: #fed7d7;
+            color: #742a2a;
+        }
+        
+        .status-warning {
+            background: #feebc8;
+            color: #7c2d12;
+        }
+        
+        .info-box {
+            background: #e0e7ff;
+            border-left: 4px solid #667eea;
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            color: #3730a3;
+            font-size: 13px;
+        }
+        
+        .footer {
+            text-align: center;
+            color: white;
+            margin-top: 30px;
+            font-size: 12px;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+        
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+            font-size: 13px;
+        }
+        
+        th {
+            background: #f5f5f5;
+            font-weight: 600;
+            color: #333;
+        }
+        
+        tr:hover {
+            background: #f9f9f9;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <h1>🔒 VPP 安全测试工具</h1>
+            <p>集成多个开源安全测试工具 - PyModbus、Boofuzz、OpenDNP3、SocketCAN、python-opcua</p>
+            
+            <div class="tools-status" id="toolsStatus">
+                <div class="tool-status tool-unavailable">
+                    <div>⏳ 加载中...</div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Tabs -->
+        <div class="tabs">
+            <button class="tab-btn active" onclick="switchTab('modbus')">🔌 Modbus 测试</button>
+            <button class="tab-btn" onclick="switchTab('dnp3')">⚡ DNP3 测试</button>
+            <button class="tab-btn" onclick="switchTab('opcua')">🏭 OPC UA 测试</button>
+            <button class="tab-btn" onclick="switchTab('can')">🚗 CAN 测试</button>
+            <button class="tab-btn" onclick="switchTab('boofuzz')">🐛 Boofuzz 模糊测试</button>
+        </div>
+        
+        <!-- Tab: Modbus -->
+        <div id="modbus" class="tab-content active">
+            <div class="info-box">
+                💡 PyModbus 是一个完整的Modbus协议实现库，支持TCP和RTU模式。可用于读写线圈、寄存器等操作。
+            </div>
+            
+            <div class="test-form">
+                <div class="form-group">
+                    <label>测试类型</label>
+                    <select id="modbusTestType">
+                        <option value="scan">扫描设备</option>
+                        <option value="read_coils">读取线圈</option>
+                        <option value="read_registers">读取寄存器</option>
+                        <option value="write_coil">写入线圈</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>目标主机</label>
+                    <input type="text" id="modbusHost" value="localhost" placeholder="192.168.1.100">
+                </div>
+                <div class="form-group">
+                    <label>端口</label>
+                    <input type="number" id="modbusPort" value="502" min="1" max="65535">
+                </div>
+                <div class="form-group">
+                    <label>地址</label>
+                    <input type="number" id="modbusAddress" value="0" min="0">
+                </div>
+                <div class="form-group">
+                    <label>数量/值</label>
+                    <input type="number" id="modbusValue" value="1" min="0">
+                </div>
+            </div>
+            
+            <div class="test-buttons">
+                <button class="btn-primary" onclick="runModbusTest()">▶️ 运行测试</button>
+                <button class="btn-secondary" onclick="clearResults('modbus')">🗑️ 清空结果</button>
+            </div>
+            
+            <div id="modbusResults" class="results" style="display: none;"></div>
+        </div>
+        
+        <!-- Tab: DNP3 -->
+        <div id="dnp3" class="tab-content">
+            <div class="info-box">
+                💡 OpenDNP3 是一个开源的DNP3协议实现，主要用于电力系统SCADA应用。支持连接测试和点扫描。
+            </div>
+            
+            <div class="test-form">
+                <div class="form-group">
+                    <label>测试类型</label>
+                    <select id="dnp3TestType">
+                        <option value="connection">连接测试</option>
+                        <option value="scan">扫描点</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>目标主机</label>
+                    <input type="text" id="dnp3Host" value="localhost" placeholder="192.168.1.100">
+                </div>
+                <div class="form-group">
+                    <label>端口</label>
+                    <input type="number" id="dnp3Port" value="20000" min="1" max="65535">
+                </div>
+            </div>
+            
+            <div class="test-buttons">
+                <button class="btn-primary" onclick="runDNP3Test()">▶️ 运行测试</button>
+                <button class="btn-secondary" onclick="clearResults('dnp3')">🗑️ 清空结果</button>
+            </div>
+            
+            <div id="dnp3Results" class="results" style="display: none;"></div>
+        </div>
+        
+        <!-- Tab: OPC UA -->
+        <div id="opcua" class="tab-content">
+            <div class="info-box">
+                💡 python-opcua 是一个Python OPC UA客户端库，支持连接到OPC UA服务器、浏览命名空间等操作。
+            </div>
+            
+            <div class="test-form">
+                <div class="form-group">
+                    <label>测试类型</label>
+                    <select id="opcuaTestType">
+                        <option value="connection">连接测试</option>
+                        <option value="browse">浏览命名空间</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>OPC UA URL</label>
+                    <input type="text" id="opcuaUrl" value="opc.tcp://localhost:4840" placeholder="opc.tcp://host:port">
+                </div>
+            </div>
+            
+            <div class="test-buttons">
+                <button class="btn-primary" onclick="runOPCUATest()">▶️ 运行测试</button>
+                <button class="btn-secondary" onclick="clearResults('opcua')">🗑️ 清空结果</button>
+            </div>
+            
+            <div id="opcuaResults" class="results" style="display: none;"></div>
+        </div>
+        
+        <!-- Tab: CAN -->
+        <div id="can" class="tab-content">
+            <div class="info-box">
+                💡 SocketCAN 是Linux内核中的CAN协议栈实现。支持接口状态检查、流量嗅探、消息发送等操作。
+            </div>
+            
+            <div class="test-form">
+                <div class="form-group">
+                    <label>测试类型</label>
+                    <select id="canTestType">
+                        <option value="status">接口状态</option>
+                        <option value="sniff">嗅探流量</option>
+                        <option value="send">发送消息</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>接口名称</label>
+                    <input type="text" id="canInterface" value="can0" placeholder="can0, can1, ...">
+                </div>
+                <div class="form-group">
+                    <label>持续时间 (秒)</label>
+                    <input type="number" id="canDuration" value="5" min="1" max="60">
+                </div>
+                <div class="form-group">
+                    <label>CAN ID (十六进制)</label>
+                    <input type="text" id="canId" value="123" placeholder="123">
+                </div>
+                <div class="form-group">
+                    <label>数据 (十六进制)</label>
+                    <input type="text" id="canData" value="0102030405060708" placeholder="0102030405060708">
+                </div>
+            </div>
+            
+            <div class="test-buttons">
+                <button class="btn-primary" onclick="runCANTest()">▶️ 运行测试</button>
+                <button class="btn-secondary" onclick="clearResults('can')">🗑️ 清空结果</button>
+            </div>
+            
+            <div id="canResults" class="results" style="display: none;"></div>
+        </div>
+        
+        <!-- Tab: Boofuzz -->
+        <div id="boofuzz" class="tab-content">
+            <div class="info-box">
+                💡 Boofuzz 是一个网络协议模糊测试框架，用于发现协议实现中的漏洞。支持Modbus和DNP3协议的模糊测试。
+            </div>
+            
+            <div class="test-form">
+                <div class="form-group">
+                    <label>测试类型</label>
+                    <select id="boofuzzTestType">
+                        <option value="modbus_fuzz">Modbus 模糊测试</option>
+                        <option value="dnp3_fuzz">DNP3 模糊测试</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>目标主机</label>
+                    <input type="text" id="boofuzzHost" value="localhost" placeholder="192.168.1.100">
+                </div>
+                <div class="form-group">
+                    <label>端口</label>
+                    <input type="number" id="boofuzzPort" value="502" min="1" max="65535">
+                </div>
+                <div class="form-group">
+                    <label>持续时间 (秒)</label>
+                    <input type="number" id="boofuzzDuration" value="10" min="1" max="300">
+                </div>
+            </div>
+            
+            <div class="test-buttons">
+                <button class="btn-primary" onclick="runBoofuzzTest()">▶️ 运行测试</button>
+                <button class="btn-secondary" onclick="clearResults('boofuzz')">🗑️ 清空结果</button>
+            </div>
+            
+            <div id="boofuzzResults" class="results" style="display: none;"></div>
+        </div>
+    </div>
+    
+    <!-- Footer -->
+    <div class="footer">
+        <p>VPP 安全测试工具 v1.0 | 集成开源安全测试框架</p>
+    </div>
+    
+    <script>
+        // Load tool status on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            loadToolStatus();
+        });
+        
+        // Load tool availability status
+        async function loadToolStatus() {
+            try {
+                const response = await fetch('/api/security/tools');
+                const data = await response.json();
+                
+                const statusDiv = document.getElementById('toolsStatus');
+                statusDiv.innerHTML = '';
+                
+                const tools = {
+                    'pymodbus': 'PyModbus',
+                    'opendnp3': 'OpenDNP3',
+                    'python_opcua': 'python-opcua',
+                    'socketcan': 'SocketCAN',
+                    'boofuzz': 'Boofuzz'
+                };
+                
+                for (const [key, name] of Object.entries(tools)) {
+                    const available = data.tools[key];
+                    const className = available ? 'tool-available' : 'tool-unavailable';
+                    const status = available ? '✅ 可用' : '❌ 未安装';
+                    
+                    const div = document.createElement('div');
+                    div.className = `tool-status ${className}`;
+                    div.innerHTML = `<div>${name}</div><div>${status}</div>`;
+                    statusDiv.appendChild(div);
+                }
+            } catch (error) {
+                console.error('Error loading tool status:', error);
+            }
+        }
+        
+        // Switch tabs
+        function switchTab(tabName) {
+            // Hide all tabs
+            document.querySelectorAll('.tab-content').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            
+            // Remove active class from all buttons
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            
+            // Show selected tab
+            document.getElementById(tabName).classList.add('active');
+            
+            // Add active class to clicked button
+            event.target.classList.add('active');
+        }
+        
+        // Run Modbus test
+        async function runModbusTest() {
+            const testType = document.getElementById('modbusTestType').value;
+            const host = document.getElementById('modbusHost').value;
+            const port = parseInt(document.getElementById('modbusPort').value);
+            const address = parseInt(document.getElementById('modbusAddress').value);
+            const value = parseInt(document.getElementById('modbusValue').value);
+            
+            await runTest('/api/security/modbus/test', {
+                test_type: testType,
+                host: host,
+                port: port,
+                address: address,
+                count: value,
+                value: value
+            }, 'modbus');
+        }
+        
+        // Run DNP3 test
+        async function runDNP3Test() {
+            const testType = document.getElementById('dnp3TestType').value;
+            const host = document.getElementById('dnp3Host').value;
+            const port = parseInt(document.getElementById('dnp3Port').value);
+            
+            await runTest('/api/security/dnp3/test', {
+                test_type: testType,
+                host: host,
+                port: port
+            }, 'dnp3');
+        }
+        
+        // Run OPC UA test
+        async function runOPCUATest() {
+            const testType = document.getElementById('opcuaTestType').value;
+            const url = document.getElementById('opcuaUrl').value;
+            
+            await runTest('/api/security/opcua/test', {
+                test_type: testType,
+                url: url
+            }, 'opcua');
+        }
+        
+        // Run CAN test
+        async function runCANTest() {
+            const testType = document.getElementById('canTestType').value;
+            const interface_ = document.getElementById('canInterface').value;
+            const duration = parseInt(document.getElementById('canDuration').value);
+            const canId = document.getElementById('canId').value;
+            const data = document.getElementById('canData').value;
+            
+            await runTest('/api/security/can/test', {
+                test_type: testType,
+                interface: interface_,
+                duration: duration,
+                can_id: canId,
+                data: data
+            }, 'can');
+        }
+        
+        // Run Boofuzz test
+        async function runBoofuzzTest() {
+            const testType = document.getElementById('boofuzzTestType').value;
+            const host = document.getElementById('boofuzzHost').value;
+            const port = parseInt(document.getElementById('boofuzzPort').value);
+            const duration = parseInt(document.getElementById('boofuzzDuration').value);
+            
+            await runTest('/api/security/boofuzz/test', {
+                test_type: testType,
+                host: host,
+                port: port,
+                duration: duration
+            }, 'boofuzz');
+        }
+        
+        // Generic test runner
+        async function runTest(endpoint, data, tabName) {
+            const resultsDiv = document.getElementById(`${tabName}Results`);
+            resultsDiv.innerHTML = '<div class="loading"><div class="spinner"></div><div>测试运行中...</div></div>';
+            resultsDiv.style.display = 'block';
+            
+            try {
+                const response = await fetch(endpoint, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(data)
+                });
+                
+                const result = await response.json();
+                
+                // Display results
+                let html = '<div class="result-item">';
+                
+                if (result.error) {
+                    html += '<div class="result-title"><span class="status-badge status-error">❌ 错误</span>' + result.error + '</div>';
+                } else {
+                    html += '<div class="result-title"><span class="status-badge status-success">✅ 成功</span>测试完成</div>';
+                    html += '<div class="result-content">' + JSON.stringify(result, null, 2) + '</div>';
+                }
+                
+                html += '</div>';
+                resultsDiv.innerHTML = html;
+            } catch (error) {
+                resultsDiv.innerHTML = `<div class="result-item error"><div class="result-title"><span class="status-badge status-error">❌ 错误</span>请求失败</div><div class="result-content">${error.message}</div></div>`;
+            }
+        }
+        
+        // Clear results
+        function clearResults(tabName) {
+            const resultsDiv = document.getElementById(`${tabName}Results`);
+            resultsDiv.innerHTML = '';
+            resultsDiv.style.display = 'none';
+        }
+    </script>
+</body>
+</html>

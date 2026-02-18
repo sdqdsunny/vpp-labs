@@ -20,6 +20,7 @@ from middleware.request_logger import add_request_id
 from routes.visualization import create_visualization_routes
 from routes.test_dashboard import create_test_dashboard_routes
 from routes.phase1_integration import create_phase1_integration_routes
+from routes.protocol_analyzer import create_protocol_analyzer_routes
 
 # Setup logging
 logger = setup_logging(
@@ -114,6 +115,18 @@ def metrics_endpoint():
     return metrics.get_metrics()
 
 
+@app.route("/analyzer", method="GET")
+def analyzer_ui():
+    """Serve protocol analyzer UI"""
+    try:
+        with open("static/protocol_analyzer.html", "r", encoding="utf-8") as f:
+            response.content_type = "text/html; charset=utf-8"
+            return f.read()
+    except FileNotFoundError:
+        response.status = 404
+        return "Protocol Analyzer UI not found"
+
+
 @app.error(500)
 def error_500(err):
     """Handle 500 errors."""
@@ -151,6 +164,7 @@ def create_app():
     create_visualization_routes(app)
     create_test_dashboard_routes(app)
     create_phase1_integration_routes(app)
+    create_protocol_analyzer_routes(app)
     
     logger.info("VPP Phase 2 Simulation Framework initialized")
     logger.info("Phase 1 Integration Service started with automatic synchronization")

@@ -1,0 +1,733 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VPP 协议流量分析工具</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        
+        .header {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+        }
+        
+        .header h1 {
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 28px;
+        }
+        
+        .header p {
+            color: #666;
+            font-size: 14px;
+        }
+        
+        .controls {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+            flex-wrap: wrap;
+        }
+        
+        button {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-primary {
+            background: #667eea;
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background: #5568d3;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+        }
+        
+        .btn-danger {
+            background: #f56565;
+            color: white;
+        }
+        
+        .btn-danger:hover {
+            background: #e53e3e;
+            transform: translateY(-2px);
+        }
+        
+        .btn-success {
+            background: #48bb78;
+            color: white;
+        }
+        
+        .btn-success:hover {
+            background: #38a169;
+            transform: translateY(-2px);
+        }
+        
+        .summary-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .card {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        
+        .card-title {
+            color: #666;
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 10px;
+        }
+        
+        .card-value {
+            color: #333;
+            font-size: 28px;
+            font-weight: bold;
+        }
+        
+        .card-subtitle {
+            color: #999;
+            font-size: 12px;
+            margin-top: 5px;
+        }
+        
+        .tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            background: white;
+            padding: 10px;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        
+        .tab-btn {
+            padding: 10px 20px;
+            border: 2px solid transparent;
+            background: transparent;
+            color: #666;
+            cursor: pointer;
+            border-radius: 5px;
+            transition: all 0.3s ease;
+        }
+        
+        .tab-btn.active {
+            background: #667eea;
+            color: white;
+            border-color: #667eea;
+        }
+        
+        .tab-btn:hover {
+            background: #f0f0f0;
+        }
+        
+        .tab-btn.active:hover {
+            background: #5568d3;
+        }
+        
+        .tab-content {
+            display: none;
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+        
+        .table-container {
+            overflow-x: auto;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+        }
+        
+        th {
+            background: #f5f5f5;
+            padding: 12px;
+            text-align: left;
+            font-weight: 600;
+            color: #333;
+            border-bottom: 2px solid #ddd;
+        }
+        
+        td {
+            padding: 12px;
+            border-bottom: 1px solid #eee;
+        }
+        
+        tr:hover {
+            background: #f9f9f9;
+        }
+        
+        .protocol-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            background: #e0e7ff;
+            color: #667eea;
+        }
+        
+        .status-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+        
+        .status-active {
+            background: #c6f6d5;
+            color: #22543d;
+        }
+        
+        .status-inactive {
+            background: #fed7d7;
+            color: #742a2a;
+        }
+        
+        .filter-group {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+        }
+        
+        select {
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 13px;
+            background: white;
+            cursor: pointer;
+        }
+        
+        input[type="text"] {
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 13px;
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 20px;
+            color: #999;
+        }
+        
+        .spinner {
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #667eea;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 10px;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .empty-state {
+            text-align: center;
+            padding: 40px 20px;
+            color: #999;
+        }
+        
+        .empty-state-icon {
+            font-size: 48px;
+            margin-bottom: 10px;
+        }
+        
+        .footer {
+            text-align: center;
+            color: white;
+            margin-top: 30px;
+            font-size: 12px;
+        }
+        
+        .refresh-indicator {
+            display: inline-block;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: #48bb78;
+            margin-left: 10px;
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+        
+        .error-message {
+            background: #fed7d7;
+            color: #742a2a;
+            padding: 12px;
+            border-radius: 5px;
+            margin-bottom: 15px;
+            border-left: 4px solid #f56565;
+        }
+        
+        .success-message {
+            background: #c6f6d5;
+            color: #22543d;
+            padding: 12px;
+            border-radius: 5px;
+            margin-bottom: 15px;
+            border-left: 4px solid #48bb78;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <h1>🔍 VPP 协议流量分析工具</h1>
+            <p>实时监控和分析工控协议流量 - 支持 IEC61850、Modbus、DNP3、MQTT、OPC UA、CAN、RS-232/485、LoRaWAN、XMPP、DL/T</p>
+            
+            <div class="controls">
+                <button class="btn-primary" onclick="refreshData()">
+                    🔄 刷新数据
+                </button>
+                <button class="btn-success" onclick="startAutoRefresh()">
+                    ▶️ 自动刷新
+                </button>
+                <button class="btn-danger" onclick="stopAutoRefresh()">
+                    ⏹️ 停止刷新
+                </button>
+                <button class="btn-danger" onclick="resetAnalyzer()">
+                    🗑️ 重置统计
+                </button>
+                <span class="refresh-indicator" id="refreshIndicator" style="display: none;"></span>
+            </div>
+        </div>
+        
+        <!-- Summary Cards -->
+        <div class="summary-cards">
+            <div class="card">
+                <div class="card-title">总数据包</div>
+                <div class="card-value" id="totalPackets">0</div>
+                <div class="card-subtitle">个数据包</div>
+            </div>
+            <div class="card">
+                <div class="card-title">总数据量</div>
+                <div class="card-value" id="totalBytes">0</div>
+                <div class="card-subtitle">字节</div>
+            </div>
+            <div class="card">
+                <div class="card-title">协议类型</div>
+                <div class="card-value" id="totalProtocols">0</div>
+                <div class="card-subtitle">种类</div>
+            </div>
+            <div class="card">
+                <div class="card-title">活跃流</div>
+                <div class="card-value" id="totalFlows">0</div>
+                <div class="card-subtitle">条</div>
+            </div>
+        </div>
+        
+        <!-- Tabs -->
+        <div class="tabs">
+            <button class="tab-btn active" onclick="switchTab('stats')">📊 协议统计</button>
+            <button class="tab-btn" onclick="switchTab('packets')">📦 数据包</button>
+            <button class="tab-btn" onclick="switchTab('flows')">🔗 流量分析</button>
+        </div>
+        
+        <!-- Tab: Protocol Statistics -->
+        <div id="stats" class="tab-content active">
+            <div id="statsMessage"></div>
+            <div class="table-container">
+                <table id="statsTable">
+                    <thead>
+                        <tr>
+                            <th>协议</th>
+                            <th>数据包数</th>
+                            <th>总字节数</th>
+                            <th>平均包大小</th>
+                            <th>包/秒</th>
+                            <th>最后见时间</th>
+                            <th>错误数</th>
+                        </tr>
+                    </thead>
+                    <tbody id="statsBody">
+                        <tr>
+                            <td colspan="7" class="empty-state">
+                                <div class="empty-state-icon">📭</div>
+                                <div>暂无数据</div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        
+        <!-- Tab: Packets -->
+        <div id="packets" class="tab-content">
+            <div class="filter-group">
+                <select id="protocolFilter" onchange="refreshPackets()">
+                    <option value="">所有协议</option>
+                </select>
+                <input type="text" id="ipFilter" placeholder="搜索 IP 地址..." onkeyup="refreshPackets()">
+                <input type="number" id="limitInput" value="100" min="10" max="1000" placeholder="限制数量" onchange="refreshPackets()">
+            </div>
+            <div id="packetsMessage"></div>
+            <div class="table-container">
+                <table id="packetsTable">
+                    <thead>
+                        <tr>
+                            <th>时间</th>
+                            <th>协议</th>
+                            <th>源 IP</th>
+                            <th>目标 IP</th>
+                            <th>端口</th>
+                            <th>大小</th>
+                            <th>方向</th>
+                            <th>预览</th>
+                        </tr>
+                    </thead>
+                    <tbody id="packetsBody">
+                        <tr>
+                            <td colspan="8" class="empty-state">
+                                <div class="empty-state-icon">📭</div>
+                                <div>暂无数据</div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        
+        <!-- Tab: Flows -->
+        <div id="flows" class="tab-content">
+            <div class="filter-group">
+                <input type="number" id="flowLimitInput" value="50" min="10" max="500" placeholder="限制数量" onchange="refreshFlows()">
+            </div>
+            <div id="flowsMessage"></div>
+            <div class="table-container">
+                <table id="flowsTable">
+                    <thead>
+                        <tr>
+                            <th>源地址</th>
+                            <th>目标地址</th>
+                            <th>协议</th>
+                            <th>数据包数</th>
+                            <th>总字节数</th>
+                            <th>开始时间</th>
+                            <th>最后见时间</th>
+                        </tr>
+                    </thead>
+                    <tbody id="flowsBody">
+                        <tr>
+                            <td colspan="7" class="empty-state">
+                                <div class="empty-state-icon">📭</div>
+                                <div>暂无数据</div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Footer -->
+    <div class="footer">
+        <p>VPP 协议流量分析工具 v1.0 | 实时监控工控协议通信</p>
+    </div>
+    
+    <script>
+        let autoRefreshInterval = null;
+        let supportedProtocols = [];
+        
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            loadSupportedProtocols();
+            refreshData();
+        });
+        
+        // Load supported protocols
+        async function loadSupportedProtocols() {
+            try {
+                const response = await fetch('/api/analyzer/protocols');
+                const data = await response.json();
+                supportedProtocols = data.protocols || [];
+                
+                // Populate protocol filter
+                const select = document.getElementById('protocolFilter');
+                supportedProtocols.forEach(protocol => {
+                    const option = document.createElement('option');
+                    option.value = protocol;
+                    option.textContent = protocol;
+                    select.appendChild(option);
+                });
+            } catch (error) {
+                console.error('Error loading protocols:', error);
+            }
+        }
+        
+        // Refresh all data
+        async function refreshData() {
+            showRefreshIndicator();
+            await Promise.all([
+                refreshSummary(),
+                refreshStats(),
+                refreshPackets(),
+                refreshFlows()
+            ]);
+            hideRefreshIndicator();
+        }
+        
+        // Refresh summary
+        async function refreshSummary() {
+            try {
+                const response = await fetch('/api/analyzer/summary');
+                const data = await response.json();
+                
+                document.getElementById('totalPackets').textContent = data.total_packets.toLocaleString();
+                document.getElementById('totalBytes').textContent = formatBytes(data.total_bytes);
+                document.getElementById('totalProtocols').textContent = data.total_protocols;
+                document.getElementById('totalFlows').textContent = data.total_flows;
+            } catch (error) {
+                console.error('Error refreshing summary:', error);
+            }
+        }
+        
+        // Refresh statistics
+        async function refreshStats() {
+            try {
+                const response = await fetch('/api/analyzer/stats');
+                const stats = await response.json();
+                
+                const tbody = document.getElementById('statsBody');
+                
+                if (stats.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="7" class="empty-state"><div class="empty-state-icon">📭</div><div>暂无数据</div></td></tr>';
+                    return;
+                }
+                
+                tbody.innerHTML = stats.map(stat => `
+                    <tr>
+                        <td><span class="protocol-badge">${stat.protocol}</span></td>
+                        <td>${stat.packet_count.toLocaleString()}</td>
+                        <td>${formatBytes(stat.total_bytes)}</td>
+                        <td>${stat.avg_packet_size} B</td>
+                        <td>${stat.packets_per_second}</td>
+                        <td>${formatTime(stat.last_seen)}</td>
+                        <td>${stat.error_count}</td>
+                    </tr>
+                `).join('');
+            } catch (error) {
+                console.error('Error refreshing stats:', error);
+                document.getElementById('statsMessage').innerHTML = '<div class="error-message">加载统计数据失败</div>';
+            }
+        }
+        
+        // Refresh packets
+        async function refreshPackets() {
+            try {
+                const protocol = document.getElementById('protocolFilter').value;
+                const limit = document.getElementById('limitInput').value;
+                const ipFilter = document.getElementById('ipFilter').value.toLowerCase();
+                
+                let url = `/api/analyzer/packets?limit=${limit}`;
+                if (protocol) url += `&protocol=${protocol}`;
+                
+                const response = await fetch(url);
+                const packets = await response.json();
+                
+                const tbody = document.getElementById('packetsBody');
+                
+                let filtered = packets;
+                if (ipFilter) {
+                    filtered = packets.filter(p => 
+                        p.src_ip.includes(ipFilter) || p.dst_ip.includes(ipFilter)
+                    );
+                }
+                
+                if (filtered.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="8" class="empty-state"><div class="empty-state-icon">📭</div><div>暂无数据</div></td></tr>';
+                    return;
+                }
+                
+                tbody.innerHTML = filtered.map(packet => `
+                    <tr>
+                        <td>${formatTime(packet.timestamp)}</td>
+                        <td><span class="protocol-badge">${packet.protocol}</span></td>
+                        <td>${packet.src_ip}</td>
+                        <td>${packet.dst_ip}</td>
+                        <td>${packet.src_port} → ${packet.dst_port}</td>
+                        <td>${packet.size} B</td>
+                        <td><span class="status-badge status-active">${packet.direction}</span></td>
+                        <td><code style="font-size: 11px;">${truncate(packet.payload_preview, 30)}</code></td>
+                    </tr>
+                `).join('');
+            } catch (error) {
+                console.error('Error refreshing packets:', error);
+                document.getElementById('packetsMessage').innerHTML = '<div class="error-message">加载数据包失败</div>';
+            }
+        }
+        
+        // Refresh flows
+        async function refreshFlows() {
+            try {
+                const limit = document.getElementById('flowLimitInput').value;
+                const response = await fetch(`/api/analyzer/flows?limit=${limit}`);
+                const flows = await response.json();
+                
+                const tbody = document.getElementById('flowsBody');
+                
+                if (flows.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="7" class="empty-state"><div class="empty-state-icon">📭</div><div>暂无数据</div></td></tr>';
+                    return;
+                }
+                
+                tbody.innerHTML = flows.map(flow => `
+                    <tr>
+                        <td>${flow.source}</td>
+                        <td>${flow.destination}</td>
+                        <td><span class="protocol-badge">${flow.protocol}</span></td>
+                        <td>${flow.packet_count.toLocaleString()}</td>
+                        <td>${formatBytes(flow.total_bytes)}</td>
+                        <td>${formatTime(flow.start_time)}</td>
+                        <td>${formatTime(flow.last_seen)}</td>
+                    </tr>
+                `).join('');
+            } catch (error) {
+                console.error('Error refreshing flows:', error);
+                document.getElementById('flowsMessage').innerHTML = '<div class="error-message">加载流量分析失败</div>';
+            }
+        }
+        
+        // Switch tabs
+        function switchTab(tabName) {
+            // Hide all tabs
+            document.querySelectorAll('.tab-content').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            
+            // Remove active class from all buttons
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            
+            // Show selected tab
+            document.getElementById(tabName).classList.add('active');
+            
+            // Add active class to clicked button
+            event.target.classList.add('active');
+        }
+        
+        // Auto refresh
+        function startAutoRefresh() {
+            if (autoRefreshInterval) return;
+            autoRefreshInterval = setInterval(refreshData, 2000);
+            showMessage('自动刷新已启动（每2秒）', 'success');
+        }
+        
+        function stopAutoRefresh() {
+            if (autoRefreshInterval) {
+                clearInterval(autoRefreshInterval);
+                autoRefreshInterval = null;
+                showMessage('自动刷新已停止', 'success');
+            }
+        }
+        
+        // Reset analyzer
+        async function resetAnalyzer() {
+            if (!confirm('确定要重置所有统计数据吗？')) return;
+            
+            try {
+                const response = await fetch('/api/analyzer/reset', { method: 'POST' });
+                const data = await response.json();
+                showMessage('统计数据已重置', 'success');
+                refreshData();
+            } catch (error) {
+                console.error('Error resetting analyzer:', error);
+                showMessage('重置失败', 'error');
+            }
+        }
+        
+        // Utility functions
+        function formatBytes(bytes) {
+            if (bytes === 0) return '0 B';
+            const k = 1024;
+            const sizes = ['B', 'KB', 'MB', 'GB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return Math.round(bytes / Math.pow(k, i) * 100) / 100 + ' ' + sizes[i];
+        }
+        
+        function formatTime(timestamp) {
+            try {
+                const date = new Date(timestamp);
+                return date.toLocaleTimeString('zh-CN');
+            } catch {
+                return timestamp;
+            }
+        }
+        
+        function truncate(str, length) {
+            return str.length > length ? str.substring(0, length) + '...' : str;
+        }
+        
+        function showRefreshIndicator() {
+            document.getElementById('refreshIndicator').style.display = 'inline-block';
+        }
+        
+        function hideRefreshIndicator() {
+            document.getElementById('refreshIndicator').style.display = 'none';
+        }
+        
+        function showMessage(message, type) {
+            const className = type === 'success' ? 'success-message' : 'error-message';
+            const div = document.createElement('div');
+            div.className = className;
+            div.textContent = message;
+            document.body.insertBefore(div, document.body.firstChild);
+            setTimeout(() => div.remove(), 3000);
+        }
+    </script>
+</body>
+</html>

@@ -1,6 +1,6 @@
 {
-  "current_demand": 104.05,
-  "flexible_demand": 40.5,
-  "dr_status": "inactive",
-  "timestamp": "2026-02-20T13:03:00.017219"
+  "current_demand": 143.39,
+  "flexible_demand": 20.81,
+  "dr_status": "active",
+  "timestamp": "2026-02-20T13:10:15.983353"
 }

@@ -1,0 +1,56 @@
+version: '3.8'
+
+services:
+  # VPP Master 容器 - 单独部署
+  vpp-master:
+    build:
+      context: ./vpp-master
+      dockerfile: Dockerfile
+    container_name: vpp-master
+    ports:
+      - "5000:5000"
+    environment:
+      - FLASK_ENV=production
+      - LOG_LEVEL=INFO
+      - MASTER_PORT=5000
+    volumes:
+      - ./vpp-master/logs:/app/logs
+    networks:
+      - vpp-network
+    restart: unless-stopped
+
+  # VPP 模拟容器 - 包含电源、储能、需求三个应用
+  vpp-simulation:
+    build:
+      context: ./vpp-phase2-simulation
+      dockerfile: Dockerfile.combined
+    container_name: vpp-simulation
+    ports:
+      - "5001:5001"  # Power Generation
+      - "5002:5002"  # Storage
+      - "5003:5003"  # Demand
+      - "8000:8000"  # Coordinator
+      - "8001:8001"  # Main API (test-dashboard, security, analyzer)
+    environment:
+      - FLASK_ENV=production
+      - LOG_LEVEL=INFO
+      - POWER_PORT=5001
+      - STORAGE_PORT=5002
+      - DEMAND_PORT=5003
+      - COORDINATOR_PORT=8000
+      - MASTER_HOST=vpp-master
+      - MASTER_PORT=5000
+      - API_PORT=5001
+      - ENV=production
+    volumes:
+      - ./vpp-phase2-simulation/logs:/app/logs
+      - ./vpp-phase2-simulation/data:/app/data
+    networks:
+      - vpp-network
+    depends_on:
+      - vpp-master
+    restart: unless-stopped
+
+networks:
+  vpp-network:
+    driver: bridge

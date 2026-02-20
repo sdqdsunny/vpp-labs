@@ -1,8 +1,8 @@
 {
-  "current_power": 55.96,
-  "solar_power": 118.04,
-  "wind_power": 68.28,
-  "efficiency": 96.8,
+  "current_power": 157.56,
+  "solar_power": 96.58,
+  "wind_power": 68.6,
+  "efficiency": 88.4,
   "device_status": "running",
-  "timestamp": "2026-02-20T13:03:00.014103"
+  "timestamp": "2026-02-20T13:10:15.980005"
 }

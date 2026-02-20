@@ -138,3 +138,5 @@
 {"timestamp": "2026-02-18T15:14:24.881393Z", "level": "INFO", "logger": "vpp_phase2_sim", "message": "Starting Power Generation Service on 0.0.0.0:8081", "module": "app_power_generation", "function": "<module>", "line": 152}
 {"timestamp": "2026-02-18T15:25:28.974196Z", "level": "INFO", "logger": "vpp_phase2_sim", "message": "VPP Power Generation Service initialized", "module": "app_power_generation", "function": "create_app", "line": 145}
 {"timestamp": "2026-02-18T15:25:28.974463Z", "level": "INFO", "logger": "vpp_phase2_sim", "message": "Starting Power Generation Service on 0.0.0.0:8081", "module": "app_power_generation", "function": "<module>", "line": 152}
+{"timestamp": "2026-02-19T13:38:50.721087Z", "level": "INFO", "logger": "vpp_phase2_sim", "message": "VPP Power Generation Service initialized", "module": "app_power_generation", "function": "create_app", "line": 145}
+{"timestamp": "2026-02-19T13:38:50.721342Z", "level": "INFO", "logger": "vpp_phase2_sim", "message": "Starting Power Generation Service on 0.0.0.0:8081", "module": "app_power_generation", "function": "<module>", "line": 152}

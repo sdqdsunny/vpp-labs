@@ -122,3 +122,5 @@
 {"timestamp": "2026-02-18T15:14:24.907756Z", "level": "INFO", "logger": "vpp_phase2_sim", "message": "Starting Load Manager Service on 0.0.0.0:8083", "module": "app_load_manager", "function": "<module>", "line": 152}
 {"timestamp": "2026-02-18T15:25:28.975997Z", "level": "INFO", "logger": "vpp_phase2_sim", "message": "VPP Load Manager Service initialized", "module": "app_load_manager", "function": "create_app", "line": 145}
 {"timestamp": "2026-02-18T15:25:28.976193Z", "level": "INFO", "logger": "vpp_phase2_sim", "message": "Starting Load Manager Service on 0.0.0.0:8083", "module": "app_load_manager", "function": "<module>", "line": 152}
+{"timestamp": "2026-02-19T13:38:50.690314Z", "level": "INFO", "logger": "vpp_phase2_sim", "message": "VPP Load Manager Service initialized", "module": "app_load_manager", "function": "create_app", "line": 145}
+{"timestamp": "2026-02-19T13:38:50.690540Z", "level": "INFO", "logger": "vpp_phase2_sim", "message": "Starting Load Manager Service on 0.0.0.0:8083", "module": "app_load_manager", "function": "<module>", "line": 152}

@@ -386,15 +386,17 @@
         <!-- Tab: DNP3 -->
         <div id="dnp3" class="tab-content">
             <div class="info-box">
-                💡 OpenDNP3 是一个开源的DNP3协议实现，主要用于电力系统SCADA应用。支持连接测试和点扫描。
+                💡 OpenDNP3 是一个开源的DNP3协议实现，主要用于电力系统SCADA应用。支持连接测试、点扫描、攻击检测和异常分析。
             </div>
             
             <div class="test-form">
                 <div class="form-group">
                     <label>测试类型</label>
-                    <select id="dnp3TestType">
+                    <select id="dnp3TestType" onchange="updateDNP3Form()">
                         <option value="connection">连接测试</option>
                         <option value="scan">扫描点</option>
+                        <option value="detect_attack">攻击检测</option>
+                        <option value="analyze_anomaly">异常分析</option>
                     </select>
                 </div>
                 <div class="form-group">
@@ -405,10 +407,16 @@
                     <label>端口</label>
                     <input type="number" id="dnp3Port" value="20000" min="1" max="65535">
                 </div>
+                <div class="form-group" id="dnp3PacketDataGroup" style="display: none; grid-column: 1 / -1;">
+                    <label>数据包数据 (JSON格式)</label>
+                    <textarea id="dnp3PacketData" placeholder='{"control_field": 0x05, "function_code": 0x01, ...}' rows="4"></textarea>
+                </div>
             </div>
             
             <div class="test-buttons">
                 <button class="btn-primary" onclick="runDNP3Test()">▶️ 运行测试</button>
+                <button class="btn-secondary" onclick="getDNP3AlarmState()">📊 获取告警状态</button>
+                <button class="btn-secondary" onclick="getDNP3Statistics()">📈 获取统计信息</button>
                 <button class="btn-secondary" onclick="clearResults('dnp3')">🗑️ 清空结果</button>
             </div>
             
@@ -607,11 +615,99 @@
             const host = document.getElementById('dnp3Host').value;
             const port = parseInt(document.getElementById('dnp3Port').value);
             
-            await runTest('/api/security/dnp3/test', {
+            let endpoint = '/api/security/dnp3/test';
+            let data = {
                 test_type: testType,
                 host: host,
                 port: port
-            }, 'dnp3');
+            };
+            
+            // For attack detection and anomaly analysis, use new endpoints
+            if (testType === 'detect_attack') {
+                endpoint = '/api/security/dnp3/attack_detection';
+                const packetDataStr = document.getElementById('dnp3PacketData').value;
+                try {
+                    data.packet_data = packetDataStr ? JSON.parse(packetDataStr) : {};
+                } catch (e) {
+                    alert('数据包数据格式错误，请输入有效的JSON');
+                    return;
+                }
+            } else if (testType === 'analyze_anomaly') {
+                endpoint = '/api/security/dnp3/analyze_anomaly';
+                const packetDataStr = document.getElementById('dnp3PacketData').value;
+                try {
+                    data.packet_data = packetDataStr ? JSON.parse(packetDataStr) : {};
+                } catch (e) {
+                    alert('数据包数据格式错误，请输入有效的JSON');
+                    return;
+                }
+            }
+            
+            await runTest(endpoint, data, 'dnp3');
+        }
+        
+        // Update DNP3 form based on test type
+        function updateDNP3Form() {
+            const testType = document.getElementById('dnp3TestType').value;
+            const packetDataGroup = document.getElementById('dnp3PacketDataGroup');
+            
+            if (testType === 'detect_attack' || testType === 'analyze_anomaly') {
+                packetDataGroup.style.display = 'block';
+            } else {
+                packetDataGroup.style.display = 'none';
+            }
+        }
+        
+        // Get DNP3 alarm state
+        async function getDNP3AlarmState() {
+            const resultsDiv = document.getElementById('dnp3Results');
+            resultsDiv.innerHTML = '<div class="loading"><div class="spinner"></div><div>获取告警状态中...</div></div>';
+            resultsDiv.style.display = 'block';
+            
+            try {
+                const response = await fetch('/api/security/dnp3/alarm_state');
+                const result = await response.json();
+                
+                let html = '<div class="result-item">';
+                
+                if (result.error) {
+                    html += '<div class="result-title"><span class="status-badge status-error">❌ 错误</span>' + result.error + '</div>';
+                } else {
+                    html += '<div class="result-title"><span class="status-badge status-success">✅ 成功</span>告警状态</div>';
+                    html += '<div class="result-content">' + JSON.stringify(result, null, 2) + '</div>';
+                }
+                
+                html += '</div>';
+                resultsDiv.innerHTML = html;
+            } catch (error) {
+                resultsDiv.innerHTML = `<div class="result-item error"><div class="result-title"><span class="status-badge status-error">❌ 错误</span>请求失败</div><div class="result-content">${error.message}</div></div>`;
+            }
+        }
+        
+        // Get DNP3 statistics
+        async function getDNP3Statistics() {
+            const resultsDiv = document.getElementById('dnp3Results');
+            resultsDiv.innerHTML = '<div class="loading"><div class="spinner"></div><div>获取统计信息中...</div></div>';
+            resultsDiv.style.display = 'block';
+            
+            try {
+                const response = await fetch('/api/security/dnp3/statistics');
+                const result = await response.json();
+                
+                let html = '<div class="result-item">';
+                
+                if (result.error) {
+                    html += '<div class="result-title"><span class="status-badge status-error">❌ 错误</span>' + result.error + '</div>';
+                } else {
+                    html += '<div class="result-title"><span class="status-badge status-success">✅ 成功</span>统计信息</div>';
+                    html += '<div class="result-content">' + JSON.stringify(result, null, 2) + '</div>';
+                }
+                
+                html += '</div>';
+                resultsDiv.innerHTML = html;
+            } catch (error) {
+                resultsDiv.innerHTML = `<div class="result-item error"><div class="result-title"><span class="status-badge status-error">❌ 错误</span>请求失败</div><div class="result-content">${error.message}</div></div>`;
+            }
         }
         
         // Run OPC UA test

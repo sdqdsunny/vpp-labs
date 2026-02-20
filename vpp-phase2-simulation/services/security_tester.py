@@ -308,15 +308,20 @@ class CANSecurityTester:
                     "output": result.stdout
                 }
             else:
+                # CAN interface not found - this is normal in Docker containers
                 return {
                     "interface": interface,
                     "status": "not_found",
+                    "message": f"CAN interface '{interface}' not found. This is normal in Docker containers without CAN hardware support.",
+                    "note": "To test CAN functionality, run on a system with CAN hardware (e.g., Raspberry Pi, industrial PC with CAN adapter)",
                     "error": result.stderr
                 }
         except Exception as e:
             return {
                 "interface": interface,
                 "status": "error",
+                "message": "Error checking CAN interface status",
+                "note": "This is normal in Docker containers without CAN hardware support",
                 "error": str(e)
             }
     
@@ -339,11 +344,15 @@ class CANSecurityTester:
                 "interface": interface,
                 "duration": duration,
                 "messages_captured": len(messages),
-                "messages": messages[:20]  # Limit to first 20
+                "messages": messages[:20],  # Limit to first 20
+                "note": "No CAN traffic captured. This is normal if no CAN interface exists or no traffic is present."
             }
         except Exception as e:
             return {
                 "interface": interface,
+                "status": "error",
+                "message": "Error sniffing CAN traffic",
+                "note": "This is normal in Docker containers without CAN hardware support. To test CAN functionality, run on a system with CAN hardware.",
                 "error": str(e)
             }
     
@@ -363,11 +372,16 @@ class CANSecurityTester:
                 "can_id": can_id,
                 "data": data,
                 "sent": result.returncode == 0,
-                "status": "success" if result.returncode == 0 else "failed"
+                "status": "success" if result.returncode == 0 else "failed",
+                "note": "Failed to send message. This is normal if no CAN interface exists.",
+                "error": result.stderr if result.returncode != 0 else None
             }
         except Exception as e:
             return {
                 "interface": interface,
+                "status": "error",
+                "message": "Error sending CAN message",
+                "note": "This is normal in Docker containers without CAN hardware support. To test CAN functionality, run on a system with CAN hardware.",
                 "error": str(e)
             }
 
@@ -414,17 +428,87 @@ class BoofuzzSecurityTester:
 
 
 class SecurityTestManager:
-    """Manages all security tests"""
+    """Manages all security tests using adapter pattern"""
     
     def __init__(self):
+        """Initialize SecurityTestManager with all available adapters"""
+        self.adapters: Dict[str, Any] = {}
+        self.test_results: Dict[str, TestResult] = {}
+        self.lock = threading.RLock()
+        
+        # Initialize legacy testers for backward compatibility
         self.modbus_tester = ModbusSecurityTester()
         self.dnp3_tester = DNP3SecurityTester()
         self.opcua_tester = OPCUASecurityTester()
         self.can_tester = CANSecurityTester()
         self.boofuzz_tester = BoofuzzSecurityTester()
         
-        self.test_results: Dict[str, TestResult] = {}
-        self.lock = threading.RLock()
+        # Initialize protocol analyzer integration (optional)
+        self.protocol_analyzer_integration = None
+        self.persistence_service = None
+        
+        # Register adapters
+        self._register_adapters()
+        
+        # Initialize optional services
+        self._initialize_optional_services()
+    
+    def _register_adapters(self) -> None:
+        """Register all available test adapters"""
+        try:
+            # Import adapters
+            from services.security_adapters.modbus_adapter import ModbusAdapter
+            from services.security_adapters.dnp3_adapter import DNP3Adapter
+            from services.security_adapters.opcua_adapter import OPCUAAdapter
+            from services.security_adapters.can_adapter import CANAdapter
+            from services.security_adapters.boofuzz_adapter import BoofuzzAdapter
+            
+            # Create and register adapters
+            adapters_to_register = [
+                ModbusAdapter(),
+                DNP3Adapter(),
+                OPCUAAdapter(),
+                CANAdapter(),
+                BoofuzzAdapter(),
+            ]
+            
+            for adapter in adapters_to_register:
+                self.register_adapter(adapter.name, adapter)
+                logger.info(f"Registered adapter: {adapter.name} (available: {adapter.is_available()})")
+        except ImportError as e:
+            logger.warning(f"Failed to import adapters: {e}. Using legacy testers only.")
+    
+    def _initialize_optional_services(self) -> None:
+        """Initialize optional services like protocol analyzer integration and persistence"""
+        try:
+            from services.protocol_analyzer_integration import get_integration_service
+            self.protocol_analyzer_integration = get_integration_service()
+            logger.info("Protocol analyzer integration initialized")
+        except Exception as e:
+            logger.warning(f"Failed to initialize protocol analyzer integration: {e}")
+        
+        try:
+            from services.test_result_persistence import get_persistence_service
+            self.persistence_service = get_persistence_service()
+            logger.info("Test result persistence service initialized")
+        except Exception as e:
+            logger.warning(f"Failed to initialize persistence service: {e}")
+    
+    def register_adapter(self, name: str, adapter: Any) -> None:
+        """Register a test adapter"""
+        with self.lock:
+            self.adapters[name] = adapter
+            logger.debug(f"Adapter '{name}' registered")
+    
+    def get_adapter(self, adapter_name: str) -> Optional[Any]:
+        """Get a registered adapter by name"""
+        with self.lock:
+            return self.adapters.get(adapter_name)
+    
+    def get_registered_adapters(self) -> Dict[str, Any]:
+        """Get all registered adapters"""
+        with self.lock:
+            return dict(self.adapters)
     
     def run_modbus_test(self, test_type: str, host: str, port: int, **kwargs) -> Dict:
         """Run Modbus security test"""
@@ -502,15 +586,352 @@ class SecurityTestManager:
             logger.error(f"Boofuzz test error: {e}")
             return {"error": str(e)}
     
+    def run_test_with_adapter(self, adapter_name: str, test_request: Any) -> Any:
+        """Execute a test using the adapter pattern
+        
+        Args:
+            adapter_name: Name of the adapter to use
+            test_request: TestRequest object with test parameters
+            
+        Returns:
+            TestResult object with test results
+        """
+        adapter = self.get_adapter(adapter_name)
+        if not adapter:
+            logger.error(f"Adapter '{adapter_name}' not found")
+            # Create error result
+            from services.security_adapters.base_adapter import TestResult
+            result = TestResult()
+            result.adapter_name = adapter_name
+            result.mark_error(f"Adapter '{adapter_name}' not found")
+            return result
+        
+        if not adapter.is_available():
+            logger.warning(f"Adapter '{adapter_name}' is not available")
+            from services.security_adapters.base_adapter import TestResult
+            result = TestResult()
+            result.adapter_name = adapter_name
+            result.mark_error(f"Adapter '{adapter_name}' is not available")
+            return result
+        
+        try:
+            # Execute test using adapter
+            result = adapter.execute_test(test_request)
+            
+            # Store result
+            with self.lock:
+                self.test_results[result.test_id] = result
+            
+            # Integrate with protocol analyzer if available
+            if self.protocol_analyzer_integration:
+                try:
+                    self.protocol_analyzer_integration.format_test_result_for_analyzer(result)
+                    if result.vulnerabilities_found:
+                        self.protocol_analyzer_integration.tag_flows_with_vulnerability(result)
+                    logger.debug(f"Test result {result.test_id} integrated with protocol analyzer")
+                except Exception as e:
+                    logger.warning(f"Failed to integrate with protocol analyzer: {e}")
+            
+            # Persist result if service is available
+            if self.persistence_service:
+                try:
+                    self.persistence_service.store_result(result)
+                    logger.debug(f"Test result {result.test_id} persisted to database")
+                except Exception as e:
+                    logger.warning(f"Failed to persist test result: {e}")
+            
+            logger.info(f"Test {result.test_id} completed with status: {result.status}")
+            return result
+        except Exception as e:
+            logger.error(f"Error executing test with adapter '{adapter_name}': {e}", exc_info=True)
+            from services.security_adapters.base_adapter import TestResult
+            result = TestResult()
+            result.adapter_name = adapter_name
+            result.mark_error(f"Test execution failed: {str(e)}")
+            return result
+    
+    def get_test_result(self, test_id: str) -> Optional[Any]:
+        """Retrieve a test result by ID
+        
+        Args:
+            test_id: The test ID to retrieve
+            
+        Returns:
+            TestResult object or None if not found
+        """
+        with self.lock:
+            return self.test_results.get(test_id)
+    
     def get_available_tools(self) -> Dict[str, bool]:
-        """Get availability of all tools"""
-        return {
+        """Get availability of all tools
+        
+        Returns:
+            Dictionary with tool names and their availability status
+        """
+        tools = {
             "pymodbus": self.modbus_tester.available,
             "opendnp3": self.dnp3_tester.available,
             "python_opcua": self.opcua_tester.available,
             "socketcan": self.can_tester.available,
             "boofuzz": self.boofuzz_tester.available
         }
+        
+        # Add adapter-based tools
+        with self.lock:
+            for adapter_name, adapter in self.adapters.items():
+                tools[adapter_name] = adapter.is_available()
+        
+        return tools
+    
+    def get_adapter_info(self) -> Dict[str, Dict[str, Any]]:
+        """Get detailed information about all registered adapters
+        
+        Returns:
+            Dictionary with adapter names and their details
+        """
+        info = {}
+        with self.lock:
+            for adapter_name, adapter in self.adapters.items():
+                info[adapter_name] = {
+                    "available": adapter.is_available(),
+                    "supported_tests": adapter.get_supported_tests() if hasattr(adapter, 'get_supported_tests') else [],
+                }
+        return info
+    
+    def get_test_result_metadata(self, test_id: str) -> Optional[Dict[str, Any]]:
+        """Get test result metadata from protocol analyzer integration
+        
+        Args:
+            test_id: The test ID to retrieve
+            
+        Returns:
+            Dictionary with test result metadata or None if not found
+        """
+        if not self.protocol_analyzer_integration:
+            return None
+        
+        try:
+            metadata = self.protocol_analyzer_integration.get_test_result_metadata(test_id)
+            if metadata:
+                return {
+                    'test_id': metadata.test_id,
+                    'test_type': metadata.test_type,
+                    'adapter_name': metadata.adapter_name,
+                    'target_host': metadata.target_host,
+                    'target_port': metadata.target_port,
+                    'status': metadata.status,
+                    'start_time': metadata.start_time,
+                    'end_time': metadata.end_time,
+                    'duration': metadata.duration,
+                    'vulnerabilities': metadata.vulnerabilities,
+                    'findings': metadata.findings
+                }
+            return None
+        except Exception as e:
+            logger.warning(f"Failed to get test result metadata: {e}")
+            return None
+    
+    def get_vulnerabilities_for_flow(self, source: str, destination: str, protocol: str) -> List[Dict[str, Any]]:
+        """Get vulnerabilities tagged for a specific network flow
+        
+        Args:
+            source: Source IP address
+            destination: Destination IP address
+            protocol: Protocol name
+            
+        Returns:
+            List of vulnerability tags for the flow
+        """
+        if not self.protocol_analyzer_integration:
+            return []
+        
+        try:
+            return self.protocol_analyzer_integration.get_vulnerabilities_for_flow(source, destination, protocol)
+        except Exception as e:
+            logger.warning(f"Failed to get vulnerabilities for flow: {e}")
+            return []
+    
+    def get_all_tagged_flows(self) -> List[Dict[str, Any]]:
+        """Get all network flows tagged with vulnerabilities
+        
+        Returns:
+            List of flows with their vulnerability tags
+        """
+        if not self.protocol_analyzer_integration:
+            return []
+        
+        try:
+            return self.protocol_analyzer_integration.get_all_tagged_flows()
+        except Exception as e:
+            logger.warning(f"Failed to get tagged flows: {e}")
+            return []
+    
+    def run_dnp3_attack_detection(self, host: str, port: int, packet_data: dict = None, **kwargs) -> Dict:
+        """Run DNP3 attack detection test
+        
+        Args:
+            host: Target host
+            port: Target port
+            packet_data: DNP3 packet data to analyze
+            **kwargs: Additional parameters
+            
+        Returns:
+            Dictionary with test results
+        """
+        try:
+            adapter = self.get_adapter("dnp3")
+            if not adapter:
+                return {
+                    "status": "error",
+                    "message": "DNP3 adapter not available",
+                    "error": "DNP3 adapter not registered"
+                }
+            
+            test_request = TestRequest(
+                test_id=f"dnp3_attack_detection_{int(time.time() * 1000)}",
+                test_type="detect_attack",
+                adapter_name="dnp3",
+                target_host=host,
+                target_port=port,
+                parameters={"packet_data": packet_data or {}},
+                timeout=kwargs.get("timeout", 30)
+            )
+            
+            result = adapter.execute_test(test_request)
+            return self._format_test_result(result)
+        except Exception as e:
+            logger.error(f"DNP3 attack detection error: {e}", exc_info=True)
+            return {
+                "status": "error",
+                "message": "DNP3 attack detection failed",
+                "error": str(e)
+            }
+
+    def run_dnp3_anomaly_analysis(self, host: str, port: int, packet_data: dict = None, **kwargs) -> Dict:
+        """Run DNP3 anomaly analysis test
+        
+        Args:
+            host: Target host
+            port: Target port
+            packet_data: DNP3 packet data to analyze
+            **kwargs: Additional parameters
+            
+        Returns:
+            Dictionary with test results
+        """
+        try:
+            adapter = self.get_adapter("dnp3")
+            if not adapter:
+                return {
+                    "status": "error",
+                    "message": "DNP3 adapter not available",
+                    "error": "DNP3 adapter not registered"
+                }
+            
+            test_request = TestRequest(
+                test_id=f"dnp3_anomaly_analysis_{int(time.time() * 1000)}",
+                test_type="analyze_anomaly",
+                adapter_name="dnp3",
+                target_host=host,
+                target_port=port,
+                parameters={"packet_data": packet_data or {}},
+                timeout=kwargs.get("timeout", 30)
+            )
+            
+            result = adapter.execute_test(test_request)
+            return self._format_test_result(result)
+        except Exception as e:
+            logger.error(f"DNP3 anomaly analysis error: {e}", exc_info=True)
+            return {
+                "status": "error",
+                "message": "DNP3 anomaly analysis failed",
+                "error": str(e)
+            }
+
+    def get_dnp3_alarm_state(self) -> Dict:
+        """Get current DNP3 alarm state
+        
+        Returns:
+            Dictionary with alarm state information
+        """
+        try:
+            adapter = self.get_adapter("dnp3")
+            if not adapter:
+                return {
+                    "status": "error",
+                    "message": "DNP3 adapter not available"
+                }
+            
+            # Access the attack detector from the adapter
+            if hasattr(adapter, 'attack_detector'):
+                alarm_state = adapter.attack_detector.get_alarm_state()
+                return {
+                    "status": "success",
+                    "alarm_state": alarm_state,
+                    "timestamp": __import__('datetime').datetime.now().isoformat()
+                }
+            else:
+                return {
+                    "status": "error",
+                    "message": "Attack detector not available in adapter"
+                }
+        except Exception as e:
+            logger.error(f"Error getting DNP3 alarm state: {e}", exc_info=True)
+            return {
+                "status": "error",
+                "message": "Failed to get alarm state",
+                "error": str(e)
+            }
+
+    def get_dnp3_statistics(self) -> Dict:
+        """Get DNP3 detection statistics
+        
+        Returns:
+            Dictionary with detection statistics
+        """
+        try:
+            adapter = self.get_adapter("dnp3")
+            if not adapter:
+                return {
+                    "status": "error",
+                    "message": "DNP3 adapter not available"
+                }
+            
+            # Access the attack detector from the adapter
+            if hasattr(adapter, 'attack_detector'):
+                statistics = adapter.attack_detector.get_statistics()
+                return {
+                    "status": "success",
+                    "statistics": statistics,
+                    "timestamp": __import__('datetime').datetime.now().isoformat()
+                }
+            else:
+                return {
+                    "status": "error",
+                    "message": "Attack detector not available in adapter"
+                }
+        except Exception as e:
+            logger.error(f"Error getting DNP3 statistics: {e}", exc_info=True)
+            return {
+                "status": "error",
+                "message": "Failed to get statistics",
+                "error": str(e)
+            }
+
+    def get_integration_summary(self) -> Dict[str, Any]:
+        """Get summary of protocol analyzer integration
+        
+        Returns:
+            Dictionary with integration statistics
+        """
+        if not self.protocol_analyzer_integration:
+            return {}
+        
+        try:
+            return self.protocol_analyzer_integration.get_integration_summary()
+        except Exception as e:
+            logger.warning(f"Failed to get integration summary: {e}")
+            return {}
 
 
 # Global manager instance

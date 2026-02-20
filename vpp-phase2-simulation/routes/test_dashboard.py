@@ -88,6 +88,14 @@ def execute_tests(test_type):
             cmd = "python3 -m pytest tests/test_metrics_collector.py tests/test_metrics_properties.py -v --tb=short"
         elif test_type == "visualization":
             cmd = "python3 -m pytest tests/test_visualization.py tests/test_visualization_properties.py -v --tb=short"
+        elif test_type == "security_unit":
+            cmd = "python3 -m pytest tests/test_security_adapters.py -v --tb=short"
+        elif test_type == "security_properties":
+            cmd = "python3 -m pytest tests/test_security_adapters_properties.py -v --tb=short"
+        elif test_type == "security_integration":
+            cmd = "python3 -m pytest tests/test_security_adapters_integration.py -v --tb=short"
+        elif test_type == "security_all":
+            cmd = "python3 -m pytest tests/test_security_adapters*.py -v --tb=short"
         else:
             cmd = "python3 -m pytest tests/ -v --tb=short"
         
@@ -285,6 +293,42 @@ def get_dashboard_html():
             background: #319795;
         }
         
+        .test-btn.security {
+            background: #e53e3e;
+            color: white;
+        }
+        
+        .test-btn.security:hover {
+            background: #c53030;
+        }
+        
+        .test-btn.security-unit {
+            background: #d69e2e;
+            color: white;
+        }
+        
+        .test-btn.security-unit:hover {
+            background: #c05621;
+        }
+        
+        .test-btn.security-properties {
+            background: #b7791f;
+            color: white;
+        }
+        
+        .test-btn.security-properties:hover {
+            background: #975a16;
+        }
+        
+        .test-btn.security-integration {
+            background: #744210;
+            color: white;
+        }
+        
+        .test-btn.security-integration:hover {
+            background: #5a3a1a;
+        }
+        
         .test-btn:disabled {
             opacity: 0.6;
             cursor: not-allowed;
@@ -445,6 +489,19 @@ def get_dashboard_html():
                     </button>
                     <button class="test-btn visualization" onclick="runTest('visualization')">
                         ▶ 可视化测试
+                    </button>
+                    <hr style="margin: 10px 0; border: none; border-top: 1px solid #e2e8f0;">
+                    <button class="test-btn security" onclick="runTest('security_all')">
+                        🔒 安全工具测试 (77)
+                    </button>
+                    <button class="test-btn security-unit" onclick="runTest('security_unit')">
+                        🔒 安全单元测试 (37)
+                    </button>
+                    <button class="test-btn security-properties" onclick="runTest('security_properties')">
+                        🔒 安全属性测试 (15)
+                    </button>
+                    <button class="test-btn security-integration" onclick="runTest('security_integration')">
+                        🔒 安全集成测试 (25)
                     </button>
                 </div>
             </div>

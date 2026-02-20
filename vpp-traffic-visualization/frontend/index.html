@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VPP 流量可视化引擎</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <div id="app">
+        <!-- 3D Canvas -->
+        <div id="canvas-container">
+            <canvas id="visualization-canvas"></canvas>
+        </div>
+
+        <!-- Control Panel -->
+        <div id="control-panel">
+            <div class="panel-header">
+                <h2>VPP 流量可视化</h2>
+                <div class="connection-status">
+                    <span id="connection-indicator" class="indicator disconnected"></span>
+                    <span id="connection-text">未连接</span>
+                </div>
+            </div>
+
+            <!-- Statistics Panel -->
+            <div class="statistics-panel">
+                <h3>实时统计</h3>
+                <div class="stat-item">
+                    <label>总报文数：</label>
+                    <span id="total-packets">0</span>
+                </div>
+                <div class="stat-item">
+                    <label>总字节数：</label>
+                    <span id="total-bytes">0</span>
+                </div>
+                <div class="stat-item">
+                    <label>控制指令：</label>
+                    <span id="control-count">0</span>
+                </div>
+                <div class="stat-item">
+                    <label>遥测数据：</label>
+                    <span id="telemetry-count">0</span>
+                </div>
+            </div>
+
+            <!-- Control Buttons -->
+            <div class="control-buttons">
+                <button id="pause-btn" class="btn">暂停</button>
+                <button id="resume-btn" class="btn">继续</button>
+                <button id="reset-btn" class="btn">重置</button>
+            </div>
+
+            <!-- Speed Control -->
+            <div class="speed-control">
+                <label>动画速度：</label>
+                <input type="range" id="speed-slider" min="0.5" max="2" step="0.1" value="1">
+                <span id="speed-value">1.0x</span>
+            </div>
+        </div>
+
+        <!-- Info Panel -->
+        <div id="info-panel">
+            <div class="info-header">
+                <h3>信息面板</h3>
+                <button id="close-info" class="close-btn">×</button>
+            </div>
+            <div id="info-content">
+                <p>选择组件或粒子流以查看详细信息</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdn.socket.io/4.5.4/socket.io.min.js"></script>
+    <script src="js/scene-manager.js"></script>
+    <script src="js/camera-controller.js"></script>
+    <script src="js/particle-system.js"></script>
+    <script src="js/main.js"></script>
+</body>
+</html>

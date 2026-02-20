@@ -12,6 +12,9 @@ from datetime import datetime
 from services.protocol_analyzer import (
     get_analyzer, PacketInfo, ProtocolType
 )
+from services.vpp_realtime_data_provider import get_vpp_data_provider
+from services.vpp_data_store import get_vpp_data_store
+from services.protocol_traffic_generator import get_protocol_traffic_generator
 
 logger = logging.getLogger(__name__)
 
@@ -23,8 +26,8 @@ def create_protocol_analyzer_routes(app: Bottle) -> None:
     def get_summary():
         """Get analysis summary"""
         try:
-            analyzer = get_analyzer()
-            summary = analyzer.get_summary()
+            generator = get_protocol_traffic_generator()
+            summary = generator.get_summary()
             response.content_type = "application/json"
             return json.dumps(summary)
         except Exception as e:
@@ -36,25 +39,11 @@ def create_protocol_analyzer_routes(app: Bottle) -> None:
     def get_stats():
         """Get protocol statistics"""
         try:
-            analyzer = get_analyzer()
-            stats = analyzer.get_protocol_stats()
-            
-            # Convert to dict for JSON serialization
-            stats_list = [
-                {
-                    'protocol': s.protocol,
-                    'packet_count': s.packet_count,
-                    'total_bytes': s.total_bytes,
-                    'avg_packet_size': s.avg_packet_size,
-                    'packets_per_second': s.packets_per_second,
-                    'last_seen': s.last_seen,
-                    'error_count': s.error_count
-                }
-                for s in stats
-            ]
+            generator = get_protocol_traffic_generator()
+            stats = generator.get_stats()
             
             response.content_type = "application/json"
-            return json.dumps(stats_list)
+            return json.dumps(stats)
         except Exception as e:
             logger.error(f"Error getting stats: {e}")
             response.status = 500
@@ -67,8 +56,8 @@ def create_protocol_analyzer_routes(app: Bottle) -> None:
             limit = int(request.query.get("limit", 100))
             protocol = request.query.get("protocol", None)
             
-            analyzer = get_analyzer()
-            packets = analyzer.get_recent_packets(limit=limit, protocol=protocol)
+            generator = get_protocol_traffic_generator()
+            packets = generator.get_packets(limit=limit, protocol=protocol)
             
             response.content_type = "application/json"
             return json.dumps(packets)
@@ -83,8 +72,8 @@ def create_protocol_analyzer_routes(app: Bottle) -> None:
         try:
             limit = int(request.query.get("limit", 50))
             
-            analyzer = get_analyzer()
-            flows = analyzer.get_flows(limit=limit)
+            generator = get_protocol_traffic_generator()
+            flows = generator.get_flows(limit=limit)
             
             response.content_type = "application/json"
             return json.dumps(flows)
@@ -125,8 +114,8 @@ def create_protocol_analyzer_routes(app: Bottle) -> None:
     def reset_analyzer():
         """Reset analyzer statistics"""
         try:
-            analyzer = get_analyzer()
-            analyzer.reset()
+            generator = get_protocol_traffic_generator()
+            generator.reset()
             
             response.content_type = "application/json"
             return json.dumps({"status": "reset_complete"})
@@ -144,6 +133,152 @@ def create_protocol_analyzer_routes(app: Bottle) -> None:
             return json.dumps({"protocols": protocols})
         except Exception as e:
             logger.error(f"Error getting protocols: {e}")
+            response.status = 500
+            return json.dumps({"error": str(e)})
+    
+    @app.route("/api/analyzer/status", method="GET")
+    def get_analyzer_status():
+        """Get analyzer status and memory usage"""
+        try:
+            generator = get_protocol_traffic_generator()
+            status = generator.get_status()
+            response.content_type = "application/json"
+            return json.dumps(status, default=str)
+        except Exception as e:
+            logger.error(f"Error getting analyzer status: {e}")
+            response.status = 500
+            return json.dumps({"error": str(e)})
+    
+    @app.route("/api/vpp/realtime", method="GET")
+    def get_vpp_realtime_data():
+        """Get real-time VPP data exchange information"""
+        try:
+            logger.info("DEBUG: /api/vpp/realtime endpoint called from protocol_analyzer")
+            store = get_vpp_data_store()
+            all_data = store.get_all_data()
+            
+            logger.info(f"DEBUG: Retrieved data from store: {list(all_data.keys())}")
+            
+            # 计算能量平衡
+            power_data = all_data['power_generation']
+            storage_data = all_data['storage']
+            demand_data = all_data['demand']
+            
+            total_supply = power_data.get('current_power', 0) + storage_data.get('current_power', 0)
+            total_demand = demand_data.get('current_demand', 0)
+            balance = total_supply - total_demand
+            
+            # 确定平衡状态
+            if abs(balance) < 5:
+                status = 'balanced'
+            elif balance > 0:
+                status = 'surplus'
+            else:
+                status = 'deficit'
+            
+            response_data = {
+                'timestamp': all_data['timestamp'],
+                'power_generation': power_data,
+                'storage': storage_data,
+                'demand': demand_data,
+                'coordinator': all_data['coordinator'],
+                'energy_balance': {
+                    'total_supply': round(total_supply, 2),
+                    'demand': round(total_demand, 2),
+                    'balance': round(balance, 2),
+                    'status': status
+                },
+                'system_status': {
+                    'power_status': power_data.get('device_status', 'unknown'),
+                    'storage_status': storage_data.get('charge_status', 'unknown'),
+                    'demand_status': demand_data.get('dr_status', 'unknown'),
+                    'overall_status': 'operational' if status != 'deficit' else 'warning'
+                },
+                '_debug': 'protocol_analyzer endpoint'
+            }
+            
+            response.content_type = "application/json"
+            response.headers['Cache-Control'] = 'no-cache, no-store, must-revalidate'
+            response.headers['Pragma'] = 'no-cache'
+            response.headers['Expires'] = '0'
+            return json.dumps(response_data, default=str)
+        except Exception as e:
+            logger.error(f"Error getting VPP realtime data: {e}")
+            response.status = 500
+            return json.dumps({"error": str(e)})
+    
+    @app.route("/api/vpp/power", method="GET")
+    def get_vpp_power_data():
+        """Get power generation data"""
+        try:
+            store = get_vpp_data_store()
+            data = store.get_power_data()
+            response.content_type = "application/json"
+            return json.dumps(data, default=str)
+        except Exception as e:
+            logger.error(f"Error getting power data: {e}")
+            response.status = 500
+            return json.dumps({"error": str(e)})
+    
+    @app.route("/api/vpp/storage", method="GET")
+    def get_vpp_storage_data():
+        """Get storage data"""
+        try:
+            store = get_vpp_data_store()
+            data = store.get_storage_data()
+            response.content_type = "application/json"
+            return json.dumps(data, default=str)
+        except Exception as e:
+            logger.error(f"Error getting storage data: {e}")
+            response.status = 500
+            return json.dumps({"error": str(e)})
+    
+    @app.route("/api/vpp/demand", method="GET")
+    def get_vpp_demand_data():
+        """Get demand data"""
+        try:
+            store = get_vpp_data_store()
+            data = store.get_demand_data()
+            response.content_type = "application/json"
+            return json.dumps(data, default=str)
+        except Exception as e:
+            logger.error(f"Error getting demand data: {e}")
+            response.status = 500
+            return json.dumps({"error": str(e)})
+    
+    @app.route("/api/vpp/energy-balance", method="GET")
+    def get_vpp_energy_balance():
+        """Get energy balance information"""
+        try:
+            store = get_vpp_data_store()
+            all_data = store.get_all_data()
+            
+            power_data = all_data['power_generation']
+            storage_data = all_data['storage']
+            demand_data = all_data['demand']
+            
+            total_supply = power_data.get('current_power', 0) + storage_data.get('current_power', 0)
+            total_demand = demand_data.get('current_demand', 0)
+            balance = total_supply - total_demand
+            
+            if abs(balance) < 5:
+                status = 'balanced'
+            elif balance > 0:
+                status = 'surplus'
+            else:
+                status = 'deficit'
+            
+            response_data = {
+                'total_supply': round(total_supply, 2),
+                'demand': round(total_demand, 2),
+                'balance': round(balance, 2),
+                'status': status
+            }
+            
+            response.content_type = "application/json"
+            return json.dumps(response_data, default=str)
+        except Exception as e:
+            logger.error(f"Error getting energy balance: {e}")
             response.status = 500
             return json.dumps({"error": str(e)})
     

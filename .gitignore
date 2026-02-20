@@ -1,29 +1,150 @@
-*.md
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+pip-log.txt
+pip-delete-this-directory.txt
+
+# Testing
+.pytest_cache/
+.coverage
+.coverage.*
+htmlcov/
+.hypothesis/
+*.cover
+.tox/
+.nox/
+
+# Virtual environments
+venv/
+ENV/
+env/
+.venv
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Environment files
+.env
+.env.local
+.env.*.local
+
+# Logs
+logs/
+*.log
+
+# Database
+*.db
+*.sqlite
+*.sqlite3
+
+# Temporary files
+*.tmp
+*.temp
+*.bak
+*.backup
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Docker
+docker-exports/
+
+# Session notes and outdated documentation (过时的会话笔记和文档)
+*_CN.md
+*_SESSION*.md
+*_TEMP*.md
+*_OLD*.md
+*_DEPRECATED*.md
+
+# Temporary shell scripts (临时脚本)
+rebuild-*.sh
+migrate-*.sh
+diagnose-*.sh
+setup-vps-*.sh
+deploy-*.sh
+export-*.sh
+backup-*.sh
+restore-*.sh
+check-*.sh
+verify-*.sh
+test-*.sh
+fix-*.sh
+quick-*.sh
+start-*.sh
+
+# Temporary analysis and planning documents (临时分析和规划文档)
+*_ANALYSIS*.md
+*_PLAN*.md
+*_GUIDE*.md
+*_REPORT*.md
+*_SUMMARY*.md
+*_STATUS*.md
+*_PROGRESS*.md
+*_CHECKLIST*.md
+*_COMPLETION*.md
+*_DEPLOYMENT*.md
+*_TROUBLESHOOTING*.md
+*_QUICK*.md
+*_REFERENCE*.md
+*_DEMO*.md
+*_TESTING*.md
+*_VERIFICATION*.md
+
+# Keep important documentation
 !README.md
-!PHASE1_INTEGRATION_SUMMARY.md
-!PHASE1_INTEGRATION_CHECKLIST.md
-!PHASE2_INTEGRATION_SUMMARY.md
-!PHASE2_INTEGRATION_CHECKLIST.md
-!PHASE3_INTEGRATION_SUMMARY.md
-!PHASE3_INTEGRATION_CHECKLIST.md
-!INTEGRATION_COMPLETION_REPORT.md
-!VPP_FOUR_MODULES_INTEGRATION_REPORT.md
-!VPP_FOUR_MODULES_SUMMARY_CN.md
-!VPP_MASTER_SIMULATION_JOINT_DEBUGGING_PLAN.md
-!VPP_JOINT_DEBUGGING_PART2.md
-!VPP_JOINT_DEBUGGING_PART3.md
-!VPP_JOINT_DEBUGGING_SUMMARY.md
-!VPP_JOINT_DEBUGGING_QUICK_START_CN.md
-!vpp-phase2-simulation/PHASE1_INTEGRATION_GUIDE.md
-!vpp-phase2-simulation/PHASE1_QUICK_REFERENCE.md
-!vpp-phase2-simulation/PHASE2_INTEGRATION_GUIDE.md
-!vpp-phase2-simulation/PHASE2_QUICK_REFERENCE.md
-!vpp-phase2-simulation/PHASE3_INTEGRATION_GUIDE.md
-!vpp-phase2-simulation/PHASE3_QUICK_REFERENCE.md
-!PROTOCOL_ANALYZER_GUIDE.md
-!PROTOCOL_ANALYZER_QUICK_REFERENCE.md
-!PROTOCOL_ANALYZER_IMPLEMENTATION_SUMMARY.md
-!PROTOCOL_ANALYZER_DELIVERY_REPORT.md
-!PROJECT_COMPLETION_SUMMARY.md
-!SECURITY_TESTER_GUIDE.md
-!SECURITY_TESTER_QUICK_REFERENCE.md
+!LICENSE
+!requirements.txt
+!vpp-master/requirements.txt
+!vpp-phase2-simulation/requirements.txt
+!vpp-traffic-visualization/requirements.txt
+
+# Keep specification files
+!.kiro/specs/**/*.md
+!.kiro/steering/**/*.md
+
+# Keep core documentation in subdirectories
+!vpp-master/API_DOCUMENTATION.md
+!vpp-master/DEPLOYMENT_GUIDE.md
+!vpp-master/TROUBLESHOOTING_GUIDE.md
+!vpp-master/QUICK_START_GUIDE.md
+!vpp-phase2-simulation/QUICK_START.md
+!vpp-phase2-simulation/DEPLOYMENT_GUIDE.md
+!vpp-traffic-visualization/README.md
+!vpp-traffic-visualization/USER_GUIDE.md
+!vpp-traffic-visualization/DEVELOPER_GUIDE.md
+!vpp-traffic-visualization/API_DOCUMENTATION.md
+
+# Compressed files
+*.tar.gz
+*.zip
+*.rar
+
+# Node modules (if any frontend)
+node_modules/
+npm-debug.log
+yarn-error.log

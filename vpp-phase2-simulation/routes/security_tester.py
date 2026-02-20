@@ -42,8 +42,11 @@ def create_security_tester_routes(app: Bottle) -> None:
             host = data.get("host", "localhost")
             port = int(data.get("port", 502))
             
+            # Remove test_type, host, port from data to avoid duplicate argument
+            kwargs = {k: v for k, v in data.items() if k not in ["test_type", "host", "port"]}
+            
             manager = get_security_manager()
-            result = manager.run_modbus_test(test_type, host, port, **data)
+            result = manager.run_modbus_test(test_type, host, port, **kwargs)
             
             response.content_type = "application/json"
             return json.dumps(result)
@@ -61,8 +64,11 @@ def create_security_tester_routes(app: Bottle) -> None:
             host = data.get("host", "localhost")
             port = int(data.get("port", 20000))
             
+            # Remove test_type from data to avoid duplicate argument
+            kwargs = {k: v for k, v in data.items() if k not in ["test_type", "host", "port"]}
+            
             manager = get_security_manager()
-            result = manager.run_dnp3_test(test_type, host, port, **data)
+            result = manager.run_dnp3_test(test_type, host, port, **kwargs)
             
             response.content_type = "application/json"
             return json.dumps(result)
@@ -79,8 +85,11 @@ def create_security_tester_routes(app: Bottle) -> None:
             test_type = data.get("test_type", "connection")
             url = data.get("url", "opc.tcp://localhost:4840")
             
+            # Remove test_type and url from data to avoid duplicate argument
+            kwargs = {k: v for k, v in data.items() if k not in ["test_type", "url"]}
+            
             manager = get_security_manager()
-            result = manager.run_opcua_test(test_type, url, **data)
+            result = manager.run_opcua_test(test_type, url, **kwargs)
             
             response.content_type = "application/json"
             return json.dumps(result)
@@ -97,8 +106,11 @@ def create_security_tester_routes(app: Bottle) -> None:
             test_type = data.get("test_type", "status")
             interface = data.get("interface", "can0")
             
+            # Remove test_type and interface from data to avoid duplicate argument
+            kwargs = {k: v for k, v in data.items() if k not in ["test_type", "interface"]}
+            
             manager = get_security_manager()
-            result = manager.run_can_test(test_type, interface, **data)
+            result = manager.run_can_test(test_type, interface, **kwargs)
             
             response.content_type = "application/json"
             return json.dumps(result)
@@ -116,13 +128,82 @@ def create_security_tester_routes(app: Bottle) -> None:
             host = data.get("host", "localhost")
             port = int(data.get("port", 502))
             
+            # Remove test_type, host, port from data to avoid duplicate argument
+            kwargs = {k: v for k, v in data.items() if k not in ["test_type", "host", "port"]}
+            
             manager = get_security_manager()
-            result = manager.run_boofuzz_test(test_type, host, port, **data)
+            result = manager.run_boofuzz_test(test_type, host, port, **kwargs)
             
             response.content_type = "application/json"
             return json.dumps(result)
         except Exception as e:
             logger.error(f"Boofuzz test error: {e}")
+            response.status = 400
+            return json.dumps({"error": str(e)})
+    
+    @app.route("/api/security/dnp3/attack_detection", method="POST")
+    def dnp3_attack_detection():
+        """Run DNP3 attack detection test"""
+        try:
+            data = request.json
+            host = data.get("host", "localhost")
+            port = int(data.get("port", 20000))
+            packet_data = data.get("packet_data", {})
+            
+            manager = get_security_manager()
+            result = manager.run_dnp3_attack_detection(host, port, packet_data)
+            
+            response.content_type = "application/json"
+            return json.dumps(result)
+        except Exception as e:
+            logger.error(f"DNP3 attack detection error: {e}")
+            response.status = 400
+            return json.dumps({"error": str(e)})
+    
+    @app.route("/api/security/dnp3/analyze_anomaly", method="POST")
+    def dnp3_analyze_anomaly():
+        """Run DNP3 anomaly analysis test"""
+        try:
+            data = request.json
+            host = data.get("host", "localhost")
+            port = int(data.get("port", 20000))
+            packet_data = data.get("packet_data", {})
+            
+            manager = get_security_manager()
+            result = manager.run_dnp3_anomaly_analysis(host, port, packet_data)
+            
+            response.content_type = "application/json"
+            return json.dumps(result)
+        except Exception as e:
+            logger.error(f"DNP3 anomaly analysis error: {e}")
+            response.status = 400
+            return json.dumps({"error": str(e)})
+    
+    @app.route("/api/security/dnp3/alarm_state", method="GET")
+    def dnp3_alarm_state():
+        """Get current DNP3 alarm state"""
+        try:
+            manager = get_security_manager()
+            result = manager.get_dnp3_alarm_state()
+            
+            response.content_type = "application/json"
+            return json.dumps(result)
+        except Exception as e:
+            logger.error(f"Error getting DNP3 alarm state: {e}")
+            response.status = 400
+            return json.dumps({"error": str(e)})
+    
+    @app.route("/api/security/dnp3/statistics", method="GET")
+    def dnp3_statistics():
+        """Get DNP3 detection statistics"""
+        try:
+            manager = get_security_manager()
+            result = manager.get_dnp3_statistics()
+            
+            response.content_type = "application/json"
+            return json.dumps(result)
+        except Exception as e:
+            logger.error(f"Error getting DNP3 statistics: {e}")
             response.status = 400
             return json.dumps({"error": str(e)})
     

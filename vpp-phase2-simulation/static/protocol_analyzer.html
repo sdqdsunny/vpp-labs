@@ -375,6 +375,7 @@
             <button class="tab-btn active" onclick="switchTab('stats')">📊 协议统计</button>
             <button class="tab-btn" onclick="switchTab('packets')">📦 数据包</button>
             <button class="tab-btn" onclick="switchTab('flows')">🔗 流量分析</button>
+            <button class="tab-btn" onclick="switchTab('vpp')">⚡ VPP 实时数据</button>
         </div>
         
         <!-- Tab: Protocol Statistics -->
@@ -471,6 +472,130 @@
                 </table>
             </div>
         </div>
+        
+        <!-- Tab: VPP Real-time Data -->
+        <div id="vpp" class="tab-content">
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 15px; margin-bottom: 20px;">
+                <!-- Power Generation Panel -->
+                <div class="card" style="border-left: 4px solid #f6ad55;">
+                    <div class="card-title">⚡ 电源生成</div>
+                    <div style="margin-top: 15px;">
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
+                            <span style="color: #666;">当前功率</span>
+                            <span id="vpp-power-current" style="font-weight: bold; color: #f6ad55;">0 kW</span>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
+                            <span style="color: #666;">太阳能</span>
+                            <span id="vpp-power-solar" style="font-weight: bold; color: #fbbf24;">0 kW</span>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
+                            <span style="color: #666;">风能</span>
+                            <span id="vpp-power-wind" style="font-weight: bold; color: #60a5fa;">0 kW</span>
+                        </div>
+                        <div style="display: flex; justify-content: space-between;">
+                            <span style="color: #666;">效率</span>
+                            <span id="vpp-power-efficiency" style="font-weight: bold; color: #34d399;">0%</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Storage Panel -->
+                <div class="card" style="border-left: 4px solid #34d399;">
+                    <div class="card-title">🔋 储能系统</div>
+                    <div style="margin-top: 15px;">
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
+                            <span style="color: #666;">充电状态</span>
+                            <span id="vpp-storage-status" style="font-weight: bold; color: #34d399;">空闲</span>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
+                            <span style="color: #666;">电量 (SOC)</span>
+                            <span id="vpp-storage-soc" style="font-weight: bold; color: #34d399;">50%</span>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
+                            <span style="color: #666;">健康度 (SOH)</span>
+                            <span id="vpp-storage-soh" style="font-weight: bold; color: #34d399;">100%</span>
+                        </div>
+                        <div style="display: flex; justify-content: space-between;">
+                            <span style="color: #666;">温度</span>
+                            <span id="vpp-storage-temp" style="font-weight: bold; color: #34d399;">25°C</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Demand Panel -->
+                <div class="card" style="border-left: 4px solid #a78bfa;">
+                    <div class="card-title">📊 需求侧</div>
+                    <div style="margin-top: 15px;">
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
+                            <span style="color: #666;">当前需求</span>
+                            <span id="vpp-demand-current" style="font-weight: bold; color: #a78bfa;">0 kW</span>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
+                            <span style="color: #666;">灵活需求</span>
+                            <span id="vpp-demand-flexible" style="font-weight: bold; color: #a78bfa;">0 kW</span>
+                        </div>
+                        <div style="display: flex; justify-content: space-between;">
+                            <span style="color: #666;">需求响应</span>
+                            <span id="vpp-demand-dr" style="font-weight: bold; color: #a78bfa;">未激活</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Energy Balance Panel -->
+                <div class="card" style="border-left: 4px solid #60a5fa;">
+                    <div class="card-title">⚖️ 能量平衡</div>
+                    <div style="margin-top: 15px;">
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
+                            <span style="color: #666;">总供应</span>
+                            <span id="vpp-balance-supply" style="font-weight: bold; color: #60a5fa;">0 kW</span>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
+                            <span style="color: #666;">总需求</span>
+                            <span id="vpp-balance-demand" style="font-weight: bold; color: #60a5fa;">0 kW</span>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
+                            <span style="color: #666;">平衡状态</span>
+                            <span id="vpp-balance-status" style="font-weight: bold; color: #60a5fa;">未知</span>
+                        </div>
+                        <div style="display: flex; justify-content: space-between;">
+                            <span style="color: #666;">余额</span>
+                            <span id="vpp-balance-value" style="font-weight: bold; color: #60a5fa;">0 kW</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- System Status -->
+            <div class="card">
+                <div class="card-title">🔍 系统状态</div>
+                <div style="margin-top: 15px;">
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px;">
+                        <div style="padding: 10px; background: #f0f0f0; border-radius: 5px;">
+                            <div style="color: #666; font-size: 12px;">电源状态</div>
+                            <div id="vpp-status-power" style="font-weight: bold; margin-top: 5px;">未知</div>
+                        </div>
+                        <div style="padding: 10px; background: #f0f0f0; border-radius: 5px;">
+                            <div style="color: #666; font-size: 12px;">储能状态</div>
+                            <div id="vpp-status-storage" style="font-weight: bold; margin-top: 5px;">未知</div>
+                        </div>
+                        <div style="padding: 10px; background: #f0f0f0; border-radius: 5px;">
+                            <div style="color: #666; font-size: 12px;">需求状态</div>
+                            <div id="vpp-status-demand" style="font-weight: bold; margin-top: 5px;">未知</div>
+                        </div>
+                        <div style="padding: 10px; background: #f0f0f0; border-radius: 5px;">
+                            <div style="color: #666; font-size: 12px;">系统状态</div>
+                            <div id="vpp-status-overall" style="font-weight: bold; margin-top: 5px;">未知</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Data Update Time -->
+            <div style="text-align: center; margin-top: 20px; color: #999; font-size: 12px;">
+                <span>最后更新: <span id="vpp-update-time">--:--:--</span></span>
+                <span style="margin-left: 20px;">自动刷新间隔: 2 秒</span>
+            </div>
+        </div>
     </div>
     
     <!-- Footer -->
@@ -484,8 +609,15 @@
         
         // Initialize
         document.addEventListener('DOMContentLoaded', function() {
+            console.log('Page loaded, initializing...');
+            console.log('Current time:', new Date().toLocaleTimeString('zh-CN'));
             loadSupportedProtocols();
             refreshData();
+            
+            // Start VPP data refresh
+            console.log('Starting VPP data refresh...');
+            startVPPDataRefresh();
+            console.log('VPP data refresh started');
         });
         
         // Load supported protocols
@@ -748,6 +880,118 @@
             div.textContent = message;
             document.body.insertBefore(div, document.body.firstChild);
             setTimeout(() => div.remove(), 3000);
+        }
+        
+        // VPP Real-time Data Functions
+        let vppRefreshInterval = null;
+        
+        function startVPPDataRefresh() {
+            if (vppRefreshInterval) {
+                console.log('VPP refresh already running');
+                return;
+            }
+            console.log('Starting VPP refresh interval (2 seconds)');
+            // Call immediately first
+            refreshVPPData();
+            // Then set interval
+            vppRefreshInterval = setInterval(refreshVPPData, 2000);
+            console.log('VPP refresh interval set:', vppRefreshInterval);
+        }
+        
+        function stopVPPDataRefresh() {
+            if (vppRefreshInterval) {
+                clearInterval(vppRefreshInterval);
+                vppRefreshInterval = null;
+            }
+        }
+        
+        async function refreshVPPData() {
+            try {
+                console.log('refreshVPPData called at', new Date().toLocaleTimeString('zh-CN'));
+                const response = await fetch('/api/vpp/realtime');
+                if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+                
+                const data = await response.json();
+                console.log('VPP data received:', data);
+                console.log('Updating display with power:', data.power_generation.current_power);
+                updateVPPDisplay(data);
+                console.log('Display updated');
+            } catch (error) {
+                console.error('Error fetching VPP data:', error);
+                // Don't show error to user, just log it
+            }
+        }
+        
+        function updateVPPDisplay(data) {
+            console.log('updateVPPDisplay called with data:', data);
+            
+            // Update Power Generation
+            const power = data.power_generation || {};
+            const powerCurrentElement = document.getElementById('vpp-power-current');
+            const newPowerValue = (power.current_power || 0).toFixed(2) + ' kW';
+            console.log('Setting vpp-power-current to:', newPowerValue, 'Old value:', powerCurrentElement.textContent);
+            powerCurrentElement.textContent = newPowerValue;
+            
+            document.getElementById('vpp-power-solar').textContent = (power.solar_power || 0).toFixed(2) + ' kW';
+            document.getElementById('vpp-power-wind').textContent = (power.wind_power || 0).toFixed(2) + ' kW';
+            document.getElementById('vpp-power-efficiency').textContent = (power.efficiency || 0).toFixed(1) + '%';
+            
+            // Update Storage
+            const storage = data.storage || {};
+            document.getElementById('vpp-storage-status').textContent = storage.charge_status || '未知';
+            document.getElementById('vpp-storage-soc').textContent = (storage.soc || 0).toFixed(1) + '%';
+            document.getElementById('vpp-storage-soh').textContent = (storage.soh || 0).toFixed(1) + '%';
+            document.getElementById('vpp-storage-temp').textContent = (storage.temperature || 0).toFixed(1) + '°C';
+            
+            // Update Demand
+            const demand = data.demand || {};
+            document.getElementById('vpp-demand-current').textContent = (demand.current_demand || 0).toFixed(2) + ' kW';
+            document.getElementById('vpp-demand-flexible').textContent = (demand.flexible_demand || 0).toFixed(2) + ' kW';
+            document.getElementById('vpp-demand-dr').textContent = demand.dr_status || '未知';
+            
+            // Update Energy Balance
+            const balance = data.energy_balance || {};
+            document.getElementById('vpp-balance-supply').textContent = (balance.total_supply || 0).toFixed(2) + ' kW';
+            document.getElementById('vpp-balance-demand').textContent = (balance.demand || 0).toFixed(2) + ' kW';
+            document.getElementById('vpp-balance-value').textContent = (balance.balance || 0).toFixed(2) + ' kW';
+            
+            // Update balance status with color
+            const statusElement = document.getElementById('vpp-balance-status');
+            const status = balance.status || 'unknown';
+            statusElement.textContent = getStatusText(status);
+            statusElement.style.color = getStatusColor(status);
+            
+            // Update System Status
+            const systemStatus = data.system_status || {};
+            document.getElementById('vpp-status-power').textContent = systemStatus.power_status || '未知';
+            document.getElementById('vpp-status-storage').textContent = systemStatus.storage_status || '未知';
+            document.getElementById('vpp-status-demand').textContent = systemStatus.demand_status || '未知';
+            document.getElementById('vpp-status-overall').textContent = systemStatus.overall_status || '未知';
+            
+            // Update timestamp
+            const now = new Date();
+            document.getElementById('vpp-update-time').textContent = now.toLocaleTimeString('zh-CN');
+            console.log('Display update complete');
+        }
+        
+        function getStatusText(status) {
+            const statusMap = {
+                'balanced': '平衡',
+                'surplus': '过剩',
+                'deficit': '不足',
+                'unknown': '未知'
+            };
+            return statusMap[status] || status;
+        }
+        
+        function getStatusColor(status) {
+            const colorMap = {
+                'balanced': '#34d399',
+                'surplus': '#fbbf24',
+                'deficit': '#f87171',
+                'unknown': '#999'
+            };
+            return colorMap[status] || '#999';
         }
     </script>
 </body>

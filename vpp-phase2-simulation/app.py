@@ -122,6 +122,9 @@ def analyzer_ui():
     try:
         with open("static/protocol_analyzer.html", "r", encoding="utf-8") as f:
             response.content_type = "text/html; charset=utf-8"
+            response.headers['Cache-Control'] = 'no-cache, no-store, must-revalidate'
+            response.headers['Pragma'] = 'no-cache'
+            response.headers['Expires'] = '0'
             return f.read()
     except FileNotFoundError:
         response.status = 404
@@ -173,6 +176,64 @@ def create_app():
     phase1_service = Phase1IntegrationService()
     phase1_service.start()
     
+    # Initialize protocol traffic generator
+    from services.protocol_traffic_generator import get_protocol_traffic_generator
+    traffic_generator = get_protocol_traffic_generator()
+    logger.info("Protocol traffic generator started")
+    
+    # Initialize VPP data generator
+    from services.vpp_data_store import get_vpp_data_store
+    vpp_store = get_vpp_data_store()
+    logger.info("VPP data store initialized")
+    
+    # Start VPP data generation in background
+    import threading
+    import random
+    import time
+    
+    def generate_vpp_data():
+        """Background task to generate VPP data"""
+        while True:
+            try:
+                # Generate power data
+                power_data = {
+                    "current_power": round(random.uniform(50, 200), 2),
+                    "solar_power": round(random.uniform(30, 150), 2),
+                    "wind_power": round(random.uniform(10, 80), 2),
+                    "efficiency": round(random.uniform(85, 98), 1),
+                    "device_status": "running"
+                }
+                vpp_store.update_power_data(power_data)
+                
+                # Generate storage data
+                storage_data = {
+                    "soc": round(random.uniform(30, 90), 1),
+                    "soh": round(random.uniform(95, 100), 1),
+                    "current_power": round(random.uniform(-50, 50), 2),
+                    "charge_status": random.choice(["charging", "discharging", "idle"]),
+                    "temperature": round(random.uniform(20, 35), 1)
+                }
+                vpp_store.update_storage_data(storage_data)
+                
+                # Generate demand data
+                demand_data = {
+                    "current_demand": round(random.uniform(50, 180), 2),
+                    "flexible_demand": round(random.uniform(10, 50), 2),
+                    "dr_status": random.choice(["active", "inactive"])
+                }
+                vpp_store.update_demand_data(demand_data)
+                
+                # Wait 2 seconds before next update
+                time.sleep(2)
+            except Exception as e:
+                logger.error(f"Error generating VPP data: {e}")
+                time.sleep(2)
+    
+    # Start VPP data generation thread
+    vpp_thread = threading.Thread(target=generate_vpp_data, daemon=True)
+    vpp_thread.start()
+    logger.info("VPP data generation thread started")
+    
     # Register routes
     create_visualization_routes(app)
     create_test_dashboard_routes(app)
@@ -182,6 +243,7 @@ def create_app():
     
     logger.info("VPP Phase 2 Simulation Framework initialized")
     logger.info("Phase 1 Integration Service started with automatic synchronization")
+    logger.info("Protocol traffic generator and VPP data generation started")
     
     return app
 

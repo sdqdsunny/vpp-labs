@@ -13,6 +13,7 @@ services:
       - FLASK_ENV=production
       - FLASK_APP=app.py
       - PYTHONUNBUFFERED=1
+      - VPP_API_BASE=http://vpp-simulation:8001
     volumes:
       - ./backend:/app/backend
       - ./frontend:/app/frontend
@@ -46,7 +47,9 @@ services:
 
 networks:
   vpp-network:
+    name: vpp-labs_vpp-network
     driver: bridge
+    external: true
 
 volumes:
   data:

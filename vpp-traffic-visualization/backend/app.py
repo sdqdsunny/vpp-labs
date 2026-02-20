@@ -21,6 +21,7 @@ from routes.websocket_routes import WebSocketRoutes
 from routes.rest_api_routes import RestAPIRoutes
 from services.traffic_collector import TrafficCollectorService
 from services.event_generator import EventGenerator
+from services.vpp_data_connector import VPPDataConnector
 
 # Configure logging
 logging.basicConfig(
@@ -43,6 +44,12 @@ ws_routes = WebSocketRoutes(socketio, broadcaster)
 traffic_collector = TrafficCollectorService()
 event_generator = EventGenerator()
 rest_api_routes = RestAPIRoutes(traffic_collector, event_generator)
+
+# Initialize VPP data connector
+vpp_connector = VPPDataConnector()
+
+# Global variable to track if VPP data fetching is running
+vpp_fetch_thread = None
 
 
 @app.route('/')
@@ -75,6 +82,73 @@ def get_statistics():
     return jsonify(rest_api_routes.get_statistics(start_time, end_time))
 
 
+@app.route('/api/vpp/status')
+def get_vpp_status():
+    """Get VPP connector status"""
+    return jsonify(vpp_connector.get_connection_status())
+
+
+def push_vpp_data_to_clients():
+    """Background task to push VPP data to connected clients"""
+    import threading
+    
+    def fetch_and_push():
+        while True:
+            try:
+                # Fetch real-time data from VPP
+                realtime_data = vpp_connector.fetch_realtime_data()
+                if realtime_data:
+                    # Convert to visualization events
+                    events = vpp_connector.convert_realtime_to_events(realtime_data)
+                    
+                    # Broadcast events to all connected clients
+                    for event in events:
+                        socketio.emit('traffic_event', {
+                            'from': event.from_component,
+                            'to': event.to_component,
+                            'type': event.traffic_type,
+                            'intensity': event.intensity,
+                            'packet_size': event.packet_size,
+                            'timestamp': event.timestamp.isoformat()
+                        }, namespace='/', skip_sid=None)
+                
+                # Also fetch and convert packet data
+                packets = vpp_connector.fetch_packets(limit=50)
+                if packets:
+                    events = vpp_connector.convert_packets_to_events(packets)
+                    for event in events:
+                        socketio.emit('traffic_event', {
+                            'from': event.from_component,
+                            'to': event.to_component,
+                            'type': event.traffic_type,
+                            'intensity': event.intensity,
+                            'packet_size': event.packet_size,
+                            'timestamp': event.timestamp.isoformat()
+                        }, namespace='/', skip_sid=None)
+                
+                # Sleep before next push
+                import time
+                time.sleep(1)
+            
+            except Exception as e:
+                logger.error(f"Error pushing VPP data: {e}")
+                import time
+                time.sleep(2)
+    
+    thread = threading.Thread(target=fetch_and_push, daemon=True)
+    thread.start()
+    return thread
+
+
 if __name__ == '__main__':
     logger.info('Starting VPP Traffic Visualization Engine...')
+    
+    # Try to connect to VPP
+    if vpp_connector.connect():
+        logger.info('Connected to VPP system')
+        # Start pushing VPP data to clients
+        vpp_fetch_thread = push_vpp_data_to_clients()
+    else:
+        logger.warning('Could not connect to VPP system - visualization will not show real-time data')
+    
     socketio.run(app, host='0.0.0.0', port=5000, debug=False, allow_unsafe_werkzeug=True)

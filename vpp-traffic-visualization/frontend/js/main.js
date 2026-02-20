@@ -248,13 +248,13 @@ function handleTrafficEvent(data) {
                 particleColor = 0x4ECDC4; // Cool cyan for telemetry
             }
             
-            // Create particles
-            const particleCount = Math.max(1, Math.floor(data.intensity * 5));
+            // Create particles - more particles for better visibility
+            const particleCount = Math.max(3, Math.floor(data.intensity * 15));
             particleSystem.createParticles(fromPos, toPos, particleCount, {
                 color: particleColor,
                 intensity: data.intensity,
-                lifetime: 2000 + (data.intensity * 1000),
-                size: 0.3 + (data.intensity * 0.3)
+                lifetime: 3000 + (data.intensity * 2000),
+                size: 0.5 + (data.intensity * 0.5)
             });
         }
     }

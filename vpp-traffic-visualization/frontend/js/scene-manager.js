@@ -127,8 +127,9 @@ class SceneManager {
      * @param {Object} position - Position {x, y, z}
      * @param {string} color - Component color (hex)
      * @param {string} type - Component type
+     * @param {string} displayName - Display name (Chinese)
      */
-    addComponent(name, position, color, type = 'default') {
+    addComponent(name, position, color, type = 'default', displayName = null) {
         // Create component geometry
         const geometry = new THREE.SphereGeometry(2, 32, 32);
         const material = new THREE.MeshStandardMaterial({
@@ -144,8 +145,9 @@ class SceneManager {
         mesh.castShadow = true;
         mesh.receiveShadow = true;
         
-        // Add label
-        const label = this.createLabel(name);
+        // Add label with display name if provided
+        const labelText = displayName || name;
+        const label = this.createLabel(labelText);
         label.position.copy(mesh.position);
         label.position.y += 4;
         
@@ -156,13 +158,14 @@ class SceneManager {
             position: position,
             color: color,
             type: type,
-            status: 'online'
+            status: 'online',
+            displayName: displayName || name
         };
         
         this.scene.add(mesh);
         this.scene.add(label);
         
-        console.log(`Added component: ${name} at (${position.x}, ${position.y}, ${position.z})`);
+        console.log(`Added component: ${name} (${labelText}) at (${position.x}, ${position.y}, ${position.z})`);
     }
     
     /**
@@ -173,19 +176,19 @@ class SceneManager {
      */
     createLabel(text) {
         const canvas = document.createElement('canvas');
-        canvas.width = 256;
-        canvas.height = 64;
+        canvas.width = 512;
+        canvas.height = 128;
         
         const ctx = canvas.getContext('2d');
         ctx.fillStyle = '#4ecdc4';
-        ctx.font = 'bold 32px Arial';
+        ctx.font = 'bold 48px "Microsoft YaHei", "SimHei", Arial, sans-serif';
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
-        ctx.fillText(text, 128, 32);
+        ctx.fillText(text, 256, 64);
         
         const texture = new THREE.CanvasTexture(canvas);
         const material = new THREE.MeshBasicMaterial({ map: texture });
-        const geometry = new THREE.PlaneGeometry(4, 1);
+        const geometry = new THREE.PlaneGeometry(8, 2);
         const mesh = new THREE.Mesh(geometry, material);
         
         return mesh;
@@ -243,25 +246,29 @@ class SceneManager {
         // Define component positions in a circular layout
         const components = [
             {
-                name: 'Master',
+                name: 'Coordinator',
+                displayName: '控制协调中心',
                 position: { x: 0, y: 0, z: 0 },
                 color: 0xFF6B6B,
                 type: 'coordinator'
             },
             {
                 name: 'Power_01',
+                displayName: '发电侧_01',
                 position: { x: 15, y: 0, z: 0 },
                 color: 0xFFA500,
                 type: 'power'
             },
             {
                 name: 'Storage_01',
+                displayName: '储能侧_01',
                 position: { x: -7.5, y: 0, z: 13 },
                 color: 0x4ECDC4,
                 type: 'storage'
             },
             {
                 name: 'Demand_01',
+                displayName: '用电侧_01',
                 position: { x: -7.5, y: 0, z: -13 },
                 color: 0x95E1D3,
                 type: 'demand'
@@ -270,13 +277,13 @@ class SceneManager {
         
         // Add all components
         components.forEach(comp => {
-            this.addComponent(comp.name, comp.position, comp.color, comp.type);
+            this.addComponent(comp.name, comp.position, comp.color, comp.type, comp.displayName);
         });
         
         // Add connections
-        this.addConnection('Master', 'Power_01', 0x4ecdc4);
-        this.addConnection('Master', 'Storage_01', 0x4ecdc4);
-        this.addConnection('Master', 'Demand_01', 0x4ecdc4);
+        this.addConnection('Coordinator', 'Power_01', 0x4ecdc4);
+        this.addConnection('Coordinator', 'Storage_01', 0x4ecdc4);
+        this.addConnection('Coordinator', 'Demand_01', 0x4ecdc4);
         this.addConnection('Power_01', 'Storage_01', 0x95E1D3);
         this.addConnection('Storage_01', 'Demand_01', 0x95E1D3);
         
